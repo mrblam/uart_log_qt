@@ -1,9 +1,6 @@
 #include "serialport.h"
 #include <QDebug>
 
-
-
-
 SerialPort::SerialPort()
 {
 
@@ -34,7 +31,6 @@ qint64 SerialPort::writeSerialPort(QByteArray data)
         return -1;
     }
     return serialPort->write(data);
-
 }
 
 void SerialPort::dataReady()

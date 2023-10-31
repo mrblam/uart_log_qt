@@ -1,10 +1,12 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+
 #include <QMainWindow>
 #include <QSerialPort>
 #include <QSerialPortInfo>
 #include "serialport.h"
+#include "logrecord.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -29,5 +31,6 @@ private:
     Ui::MainWindow *ui;
     SerialPort _port;
     bool loadPort();
+    LogRecord record;
 };
 #endif // MAINWINDOW_H

@@ -8,7 +8,7 @@ class SerialPort : public QObject
 {
     Q_OBJECT
 public:
-    SerialPort();
+    explicit SerialPort();
     bool connectPort(QString portName);
     qint64 writeSerialPort(QByteArray data);
 signals:

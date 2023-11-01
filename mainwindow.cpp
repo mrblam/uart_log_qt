@@ -6,8 +6,8 @@
 #include <QSqlQuery>
 #include <QSqlTableModel>
 #include <QTimer>
+#include <QDateTime>
 
-static QString mergeCharArray(char* arr,int size);
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -58,7 +58,7 @@ void MainWindow::on_pushOpen_pressed()
                        "Liter4 INT,"
                        "UnitPrice4 INT,"
                        "MoneyTotal4 INT,"
-                       "End INT)");
+                       "time DATETIME)");
         }
         QSqlTableModel *model = new QSqlTableModel;
         model->setTable("LogRS232");
@@ -190,8 +190,14 @@ void MainWindow::readDataSerial(QByteArray data)
 //    qry_cmd.append(QByteArray::number(record.getUnitPrice_4()));
 //    qry_cmd.append(",");
 //    qry_cmd.append(QByteArray::number(record.getMoney_4()));
-    qry_cmd.append("99)");
-    query.exec(qry_cmd);
+    qry_cmd.append(":time)");
+    QDateTime currentTime = QDateTime::currentDateTime();
+    query.prepare(qry_cmd);
+    query.bindValue(":time", currentTime);
+    if (!query.exec()) {
+        qDebug() << "Insert failed:" << query.lastError();
+    }
+    //
     static QSqlTableModel *model_1 = new QSqlTableModel;
     model_1->setTable("LogRS232");
     model_1->setEditStrategy(QSqlTableModel::OnManualSubmit);
@@ -205,12 +211,4 @@ void MainWindow::on_btnSend_clicked()
     if (numBytes == -1) {
         QMessageBox::critical(this,"Error","Something went wrong!!");
     }
-}
-static QString mergeCharArray(char* arr,int size){
-    QString mergedString;
-
-    for (int i = 0; i < size; ++i) {
-        mergedString.append(QString(arr[i]));
-    }
-    return mergedString;
 }

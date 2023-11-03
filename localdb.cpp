@@ -19,11 +19,5 @@ LocalDB* LocalDB::getLocalDB()
 
 void LocalDB::createDb(LogRecord *record)
 {
-    database = QSqlDatabase::addDatabase("QSQLITE");
-    database.setDatabaseName("/home/hoanpx/"+ record->getNameTable());
-    if(!database.open())
-    {
-        qDebug() << "cannot create new:" <<record->getNameTable();
-    }
-    else qDebug() << "created new:" << record->getNameTable();
+
 }

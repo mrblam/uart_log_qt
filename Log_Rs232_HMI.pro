@@ -13,16 +13,20 @@ SOURCES += \
     logrecord.cpp \
     main.cpp \
     mainwindow.cpp \
+    scada.cpp \
     serialport.cpp
 
 HEADERS += \
     localdb.h \
     logrecord.h \
     mainwindow.h \
+    nozzlehelper.h \
+    scada.h \
     serialport.h
 
 FORMS += \
-    mainwindow.ui
+    mainwindow.ui \
+    scada.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

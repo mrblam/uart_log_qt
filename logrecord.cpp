@@ -2,6 +2,7 @@
 #include <QDebug>
 #include <QDataStream>
 
+
 LogRecord::LogRecord()
 {
     setSequent(23);
@@ -12,7 +13,16 @@ QString LogRecord::getNameTable()
     return nameTable;
 }
 
-int LogRecord::getSeqence()
+LogRecord *LogRecord::getRecord()
+{
+    static LogRecord* self;
+    if(self==nullptr){
+        self=new LogRecord();
+    }
+    return self;
+}
+
+char LogRecord::getSeqence()
 {
     return sequence;
 }
@@ -92,34 +102,45 @@ char LogRecord::getChecksum()
     return 1;
 }
 
-void LogRecord::setSequent(int data)
+void LogRecord::setSequent(int)
 {
-    sequence = data;
+
 }
+
+
 
 void LogRecord::parseData(QByteArray * const p_data)
 {
 #if 1
-    char *l_data = p_data->data();
-    checksum = l_data[91];
-    if(1){ //checksum == calcChecksum(l_data)
-        sequence = l_data[0];
-        id = l_data[1];
-        status = l_data[2];
-        strncpy((char *)liter_1,(const char *)&l_data[3],8);
-        strncpy((char *)unitPrice_1,(const char *)&l_data[11],6);
-        strncpy((char *)money_1,(const char *)&l_data[17],8);
-        strncpy((char *)liter_2,(const char *)&l_data[25],8);
-        strncpy((char *)unitPrice_2,(const char *)&l_data[33],6);
-        strncpy((char *)money_2,(const char *)&l_data[39],8);
-        strncpy((char *)liter_3,(const char *)&l_data[47],8);
-        strncpy((char *)unitPrice_3,(const char *)&l_data[55],6);
-        strncpy((char *)money_3,(const char *)&l_data[61],8);
-        strncpy((char *)liter_4,(const char *)&l_data[69],8);
-        strncpy((char *)unitPrice_4,(const char *)&l_data[77],6);
-        strncpy((char *)money_4,(const char *)&l_data[83],8);
-    }else{
-        qDebug() << "checksum error";
+    if(1){
+        char *l_data = p_data->data();
+        checksum = l_data[91];
+        if(1){ //checksum == calcChecksum(l_data)
+            sequence = l_data[1];
+            id = l_data[2];
+            status = l_data[3];
+            if(status == 0 || status == 1){
+                strncpy((char *)liter_1,(const char *)&l_data[4],8);
+                strncpy((char *)unitPrice_1,(const char *)&l_data[12],6);
+                strncpy((char *)money_1,(const char *)&l_data[18],8);
+                strncpy((char *)liter_2,(const char *)&l_data[26],8);
+                strncpy((char *)unitPrice_2,(const char *)&l_data[34],6);
+                strncpy((char *)money_2,(const char *)&l_data[40],8);
+                strncpy((char *)liter_3,(const char *)&l_data[48],8);
+                strncpy((char *)unitPrice_3,(const char *)&l_data[56],6);
+                strncpy((char *)money_3,(const char *)&l_data[62],8);
+                strncpy((char *)liter_4,(const char *)&l_data[70],8);
+                strncpy((char *)unitPrice_4,(const char *)&l_data[71],6);
+                strncpy((char *)money_4,(const char *)&l_data[84],8);
+            }else{
+                if(status == 2) disconnect++;
+                if(status == 3) shutdown++;
+            }
+
+        }else{
+            qDebug() << "checksum error";
+        }
+
     }
 #endif
 }
@@ -130,3 +151,19 @@ char LogRecord::calcChecksum(char *data)
     l_result = data[91];
     return l_result;
 }
+//        QString l_data;
+//        QString data_part;
+//        l_data = p_data->toHex();
+//        data_part = l_data.mid(0,16);
+//        uint8_t a = '\0' ;
+//        uint64_t c;
+//        char b;
+//        b = p_data->at(3);
+//        a = (int)b;
+//        bool ok;
+//        c = data_part.toULongLong(&ok,16);
+
+//        qDebug()<< c <<a;
+//        id = p_data[1].toUInt();
+//        status = p_data[2].toInt();
+//        liter_1 = p_data[3].toInt();

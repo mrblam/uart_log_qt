@@ -9,7 +9,8 @@ class LogRecord : public QObject
 public:
     explicit LogRecord();
     QString getNameTable();
-    int getSeqence();
+    static LogRecord* getRecord();
+    char getSeqence();
     char getId();
     char getStatus();
     char* getLiter_1();
@@ -46,11 +47,13 @@ public:
     void parseData(QByteArray* const p_data );
     char calcChecksum(char*);
 private:
+
     QString nameTable;
     char SoF;
-    char sequence;
-    char id;
-    char status;
+    char sequence = 0;
+    char new_sequence = 0;
+    char id = 0;
+    char status = 0;
     char liter_1[8];
     char unitPrice_1[6];
     char money_1[8];
@@ -63,6 +66,9 @@ private:
     char liter_4[8];
     char unitPrice_4[6];
     char money_4[8];
+    uint64_t disconnect =0;
+    uint64_t lostLog = 0;
+    uint64_t shutdown =0;
     char checksum;
     char EoF;
 };

@@ -7,6 +7,7 @@
 #include <QSqlTableModel>
 #include <QTimer>
 #include <QDateTime>
+#include <scada.h>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -15,6 +16,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     loadPort();
     connect(&_port,&SerialPort::dataReceived,this,&MainWindow::readDataSerial);
+    connect(this,&MainWindow::prepareData,Scada::getScada(),&Scada::updateLog);
+    this->setWindowTitle("Peco Log");
+
 }
 MainWindow::~MainWindow()
 {
@@ -64,6 +68,7 @@ void MainWindow::on_pushOpen_pressed()
         model->setTable("LogRS232");
         model->setEditStrategy(QSqlTableModel::OnManualSubmit);
         model->select();
+        ui->tableViewDb->setEditTriggers(QAbstractItemView::NoEditTriggers);
         ui->tableViewDb->setModel(model);
         ui->tableViewDb->show();
         delete(model);
@@ -72,20 +77,26 @@ void MainWindow::on_pushOpen_pressed()
 }
 //sequence,id,status,1,2,3,4
 void MainWindow::readDataSerial(QByteArray data)
-{
-    ui->listMessage->addItem(QString (data));
+{//// data received
+    static QSqlTableModel *model_1 = new QSqlTableModel;
+    QDateTime currentTime;
+    QString l_data;
+    QString data_part;
     QString qry_cmd = "insert into LogRS232 values(";
+    LogRecord *record = LogRecord::getRecord();
     QSqlQuery query;
-    record.parseData(&data);
-    QString l_data = (data.toHex());
-    QString data_part = l_data.mid(0,2);
+    ui->listMessage->addItem(QString (data));
+    record->parseData(&data);
+    emit prepareData();
+    l_data = (data.toHex());
+    data_part = l_data.mid(0,2);
     qry_cmd.append(data_part); //Sequence
     qry_cmd.append(",");
     data_part = l_data.mid(2,2);
     qry_cmd.append(data_part); //ID
     qry_cmd.append(",");
     data_part = l_data.mid(4,2);
-    qry_cmd.append(data_part);//Status
+    qry_cmd.append(data_part); //Status
     qry_cmd.append(",");
     data_part = l_data.mid(6,16);
     qry_cmd.append(data_part);
@@ -123,7 +134,33 @@ void MainWindow::readDataSerial(QByteArray data)
     data_part = l_data.mid(166,16);
     qry_cmd.append(data_part);
     qry_cmd.append(",");
-//    qry_cmd.append("insert into LogRS232 values(105,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5)");
+    qry_cmd.append(":time)");
+    currentTime = QDateTime::currentDateTime();
+    query.prepare(qry_cmd);
+    query.bindValue(":time", currentTime);
+    if (!query.exec()) {
+        qDebug() << "Insert failed:" << query.lastError();
+    }
+    model_1->setTable("LogRS232");
+    model_1->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    model_1->select();
+    ui->tableViewDb->setModel(model_1);
+    ui->tableViewDb->show();
+}
+void MainWindow::on_btnSend_clicked()
+{
+    auto numBytes = _port.writeSerialPort(ui->lnMessage->text().toUtf8());
+    if (numBytes == -1) {
+        QMessageBox::critical(this,"Error","Something went wrong!!");
+    }
+}
+
+void MainWindow::on_btnScada_clicked()
+{
+    Scada *Scada_window = new Scada;
+    Scada_window->show();
+}
+
 #if 0
     qry_cmd.append(QByteArray::number(record.getSeqence()));
     qry_cmd.append(",");
@@ -190,25 +227,3 @@ void MainWindow::readDataSerial(QByteArray data)
 //    qry_cmd.append(QByteArray::number(record.getUnitPrice_4()));
 //    qry_cmd.append(",");
 //    qry_cmd.append(QByteArray::number(record.getMoney_4()));
-    qry_cmd.append(":time)");
-    QDateTime currentTime = QDateTime::currentDateTime();
-    query.prepare(qry_cmd);
-    query.bindValue(":time", currentTime);
-    if (!query.exec()) {
-        qDebug() << "Insert failed:" << query.lastError();
-    }
-    //
-    static QSqlTableModel *model_1 = new QSqlTableModel;
-    model_1->setTable("LogRS232");
-    model_1->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    model_1->select();
-    ui->tableViewDb->setModel(model_1);
-    ui->tableViewDb->show();
-}
-void MainWindow::on_btnSend_clicked()
-{
-    auto numBytes = _port.writeSerialPort(ui->lnMessage->text().toUtf8());
-    if (numBytes == -1) {
-        QMessageBox::critical(this,"Error","Something went wrong!!");
-    }
-}

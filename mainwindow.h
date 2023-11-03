@@ -27,10 +27,14 @@ private slots:
 
     void on_btnSend_clicked();
 
+    void on_btnScada_clicked();
+
 private:
     Ui::MainWindow *ui;
     SerialPort _port;
     bool loadPort();
-    LogRecord record;
+//    LogRecord record;
+signals:
+    void prepareData();
 };
 #endif // MAINWINDOW_H

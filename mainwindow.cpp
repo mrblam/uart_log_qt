@@ -17,6 +17,7 @@ MainWindow::MainWindow(QWidget *parent)
     loadPort();
     connect(&_port,&SerialPort::dataReceived,this,&MainWindow::readDataSerial);
     connect(this,&MainWindow::prepareData,Scada::getScada(),&Scada::updateLog);
+    connect(this,&MainWindow::updateErr,Scada::getScada(),&Scada::updateErr);
     this->setWindowTitle("Peco Log");
 
 }
@@ -86,60 +87,65 @@ void MainWindow::readDataSerial(QByteArray data)
     LogRecord *record = LogRecord::getRecord();
     QSqlQuery query;
     ui->listMessage->addItem(QString (data));
-    record->parseData(&data);
-    emit prepareData();
     l_data = (data.toHex());
-    data_part = l_data.mid(0,2);
-    qry_cmd.append(data_part); //Sequence
-    qry_cmd.append(",");
     data_part = l_data.mid(2,2);
-    qry_cmd.append(data_part); //ID
-    qry_cmd.append(",");
-    data_part = l_data.mid(4,2);
-    qry_cmd.append(data_part); //Status
-    qry_cmd.append(",");
-    data_part = l_data.mid(6,16);
-    qry_cmd.append(data_part);
-    qry_cmd.append(",");
-    data_part = l_data.mid(22,12);
-    qry_cmd.append(data_part);
-    qry_cmd.append(",");
-    data_part = l_data.mid(34,16);
-    qry_cmd.append(data_part);
-    qry_cmd.append(",");
-    data_part = l_data.mid(50,16);
-    qry_cmd.append(data_part);
-    qry_cmd.append(",");
-    data_part = l_data.mid(66,12);
-    qry_cmd.append(data_part);
-    qry_cmd.append(",");
-    data_part = l_data.mid(78,16);
-    qry_cmd.append(data_part);
-    qry_cmd.append(",");
-    data_part = l_data.mid(94,16);
-    qry_cmd.append(data_part);
-    qry_cmd.append(",");
-    data_part = l_data.mid(110,12);
-    qry_cmd.append(data_part);
-    qry_cmd.append(",");
-    data_part = l_data.mid(122,16);
-    qry_cmd.append(data_part);
-    qry_cmd.append(",");
-    data_part = l_data.mid(138,16);
-    qry_cmd.append(data_part);
-    qry_cmd.append(",");
-    data_part = l_data.mid(154,12);
-    qry_cmd.append(data_part);
-    qry_cmd.append(",");
-    data_part = l_data.mid(166,16);
-    qry_cmd.append(data_part);
-    qry_cmd.append(",");
-    qry_cmd.append(":time)");
-    currentTime = QDateTime::currentDateTime();
-    query.prepare(qry_cmd);
-    query.bindValue(":time", currentTime);
-    if (!query.exec()) {
-        qDebug() << "Insert failed:" << query.lastError();
+    qry_cmd.append(data_part); //Sequence
+    if(data_part.toInt() > LogRecord::getRecord()->getSeqence()){
+        record->parseData(&data);
+        emit prepareData();
+        qry_cmd.append(",");
+        data_part = l_data.mid(4,2);
+        qry_cmd.append(data_part); //ID
+        if(data_part.toInt()){
+            emit updateErr(data_part.toInt());
+        }
+        qry_cmd.append(",");
+        data_part = l_data.mid(6,2);
+        qry_cmd.append(data_part); //Status
+        qry_cmd.append(",");
+        data_part = l_data.mid(8,16);
+        qry_cmd.append(data_part);
+        qry_cmd.append(",");
+        data_part = l_data.mid(24,12);
+        qry_cmd.append(data_part);
+        qry_cmd.append(",");
+        data_part = l_data.mid(36,16);
+        qry_cmd.append(data_part);
+        qry_cmd.append(",");
+        data_part = l_data.mid(52,16);
+        qry_cmd.append(data_part);
+        qry_cmd.append(",");
+        data_part = l_data.mid(68,12);
+        qry_cmd.append(data_part);
+        qry_cmd.append(",");
+        data_part = l_data.mid(80,16);
+        qry_cmd.append(data_part);
+        qry_cmd.append(",");
+        data_part = l_data.mid(96,16);
+        qry_cmd.append(data_part);
+        qry_cmd.append(",");
+        data_part = l_data.mid(112,12);
+        qry_cmd.append(data_part);
+        qry_cmd.append(",");
+        data_part = l_data.mid(124,16);
+        qry_cmd.append(data_part);
+        qry_cmd.append(",");
+        data_part = l_data.mid(140,16);
+        qry_cmd.append(data_part);
+        qry_cmd.append(",");
+        data_part = l_data.mid(156,12);
+        qry_cmd.append(data_part);
+        qry_cmd.append(",");
+        data_part = l_data.mid(168,16);
+        qry_cmd.append(data_part);
+        qry_cmd.append(",");
+        qry_cmd.append(":time)");
+        currentTime = QDateTime::currentDateTime();
+        query.prepare(qry_cmd);
+        query.bindValue(":time", currentTime);
+        if (!query.exec()) {
+            qDebug() << "Insert failed:" << query.lastError();
+        }
     }
     model_1->setTable("LogRS232");
     model_1->setEditStrategy(QSqlTableModel::OnManualSubmit);
@@ -158,6 +164,7 @@ void MainWindow::on_btnSend_clicked()
 void MainWindow::on_btnScada_clicked()
 {
     Scada *Scada_window = new Scada;
+//    connect(this,&MainWindow::prepareData,Scada::getScada(),&Scada::updateLog);
     Scada_window->show();
 }
 

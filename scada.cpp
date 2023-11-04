@@ -9,7 +9,6 @@ Scada::Scada(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::Scada)
 {
-
     ui->setupUi(this);
     this->setWindowTitle("SCADA");
     QStringList horzHeaders;
@@ -47,6 +46,7 @@ void Scada::updateLog()
         ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 5),nozzle_arr[i].totalMoney,Qt::EditRole);
         ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 6),nozzle_arr[i].liter,Qt::EditRole);
         ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 7),nozzle_arr[i].unitPrice,Qt::EditRole);
+
 #else
         item->setData(Qt::DisplayRole,nozzle_arr[i].totalMoney);
         ui->tableWidget->setItem(i,1,item);
@@ -104,14 +104,6 @@ void Scada::prepareData(int id_nozzle)
     stringBuff.append(QString::number((int)(buff[6])));
     stringBuff.append(QString::number((int)(buff[7])));
     nozzle_arr[id_nozzle].liter = stringBuff.toLongLong();
-    if(LogRecord::getRecord()->getSeqence())
-    if ((int)(LogRecord::getRecord()->getStatus()) == 1){
-        nozzle_arr[id_nozzle].lostLog++;
-    }else if((int)(LogRecord::getRecord()->getStatus()) == 2){
-        nozzle_arr[id_nozzle].disconnect++;
-    }else if((int)(LogRecord::getRecord()->getStatus()) == 3){
-        nozzle_arr[id_nozzle].shutdown++;
-    }
 }
 
 Scada *Scada::getScada()
@@ -121,4 +113,16 @@ Scada *Scada::getScada()
         self=new Scada();
     }
     return self;
+}
+
+void Scada::updateErr(int id_nozzle)
+{
+    if(LogRecord::getRecord()->getSeqence())
+        if ((int)(LogRecord::getRecord()->getStatus()) == 1){
+            nozzle_arr[id_nozzle].lostLog++;
+        }else if((int)(LogRecord::getRecord()->getStatus()) == 2){
+            nozzle_arr[id_nozzle].disconnect++;
+        }else if((int)(LogRecord::getRecord()->getStatus()) == 3){
+            nozzle_arr[id_nozzle].shutdown++;
+        }
 }

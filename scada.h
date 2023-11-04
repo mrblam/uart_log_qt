@@ -18,7 +18,8 @@ public:
     void updateLog();
     void prepareData(int id_nozzle);
     static Scada* getScada();
-
+public slots:
+    void updateErr(int id_nozzle);
 private:
     Ui::Scada *ui;
     QDateTime time;

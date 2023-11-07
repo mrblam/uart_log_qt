@@ -19,17 +19,19 @@ class SerialPort : public QObject
 {
     Q_OBJECT
 public:
+    NozzleMessage nozzleMsg;
     explicit SerialPort();
     bool connectPort(QString portName);
     qint64 writeSerialPort(QByteArray data);
     void receiveData(const QByteArray &new_data);
     uint8_t getRxDataPack();
 signals:
-    void dataReceived(QByteArray data);
+    void insertDataToDb(NozzleMessage &data);
     void showDataReceived(QByteArray data);
 private:
     QSerialPort *serialPort = nullptr;
     QByteArray rxBuffer;
+    QByteArray packReady;
     uint8_t    data_len;
     uint32_t heartbeatCounter;
     QTimer heartbeatTicker;
@@ -37,7 +39,7 @@ private:
     uint8_t   data_len_index = 0;
     QTimer pollingDataReceived;
     uint8_t pack_found;
-    NozzleMessage nozzleMsg;
+
 private slots:
     void dataReady();
     void timeOut();

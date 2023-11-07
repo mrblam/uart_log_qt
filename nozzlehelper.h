@@ -22,9 +22,17 @@ typedef struct NozzleData{
 typedef struct NozzleMessage{
     uint8_t Id;
     uint8_t Status;
-    NozzleData nozzleDataCurrent;
-    NozzleData nozzleDataStart;
-    NozzleData nozzleDataStop;
-    NozzleData nozzleDataIdle;
+    QByteArray liter_1;
+    QByteArray unitPrice_1;
+    QByteArray money_1;
+    QByteArray liter_2;
+    QByteArray unitPrice_2;
+    QByteArray money_2;
+    QByteArray liter_3;
+    QByteArray unitPrice_3;
+    QByteArray money_3;
+    QByteArray liter_4;
+    QByteArray unitPrice_4;
+    QByteArray money_4;
 }NozzleMessage;
 #endif // NOZZLEHELPER_H

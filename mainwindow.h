@@ -23,7 +23,7 @@ public:
 private slots:
     void on_pushOpen_pressed();
 
-    void insertDataToDb(QByteArray data);
+    void insertDataToDb(NozzleMessage &data);
 
     void on_btnSend_clicked();
 

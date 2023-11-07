@@ -51,7 +51,6 @@ void Scada::updateLog()
 {
     uint8_t id = 0;
 //    QTableWidgetItem *item = new QTableWidgetItem();
-
     id = LogRecord::getRecord()->getId();
     prepareData(id);
     for(int i = 0;i < NOZZLE_NUM;i++){
@@ -98,9 +97,6 @@ void Scada::updateLog()
 //        emit model->dataChanged(index,index);
 #endif
     }
-
-//    emit ui->tableWidget->model()->dataChanged(ui->tableWidget->model()->index(0, 0), ui->tableWidget->model()->index(10, 8));
-//    ui->tableWidget->viewport()->update();
 }
 
 void Scada::prepareData(uint8_t id_nozzle)

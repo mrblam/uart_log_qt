@@ -28,6 +28,7 @@ public:
 signals:
     void insertDataToDb(NozzleMessage &data);
     void showDataReceived(QByteArray data);
+    void updateNozzleData(NozzleMessage &data);
 private:
     QSerialPort *serialPort = nullptr;
     QByteArray rxBuffer;

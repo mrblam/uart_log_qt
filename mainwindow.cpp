@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&_port,&SerialPort::showDataReceived,this,&MainWindow::showDataReceived);
     connect(&_port,&SerialPort::insertDataToDb,this,&MainWindow::insertDataToDb);
 //    connect(this,&MainWindow::prepareData,Scada::getScada(),&Scada::updateLog);
-    connect(this,&MainWindow::updateErr,Scada::getScada(),&Scada::updateErr);
+    connect(&_port,&SerialPort::updateNozzleData,Scada::getScada(),&Scada::updateNozzleData);
     this->setWindowTitle("Peco Log");
 
 }

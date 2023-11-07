@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QDateTime>
 #include <QStandardItemModel>
+#include <nozzlehelper.h>
 
 namespace Ui {
 class Scada;
@@ -16,11 +17,11 @@ class Scada : public QWidget
 public:
     explicit Scada(QWidget *parent = nullptr);
     ~Scada();
-    void updateLog();
+    void updateScada();
     void prepareData(uint8_t id_nozzle);
     static Scada* getScada();
 public slots:
-    void updateErr(uint8_t id_nozzle);
+    void updateNozzleData(NozzleMessage &data);
 private:
     Ui::Scada *ui;
     QStandardItemModel *model;

@@ -37,6 +37,5 @@ private:
 //    LogRecord record;
 signals:
     void prepareData();
-    void updateErr(int id);
 };
 #endif // MAINWINDOW_H

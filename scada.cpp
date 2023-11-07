@@ -1,6 +1,5 @@
 #include "scada.h"
 #include "ui_scada.h"
-#include "logrecord.h"
 #include "nozzlehelper.h"
 
 
@@ -22,11 +21,9 @@ Scada::Scada(QWidget *parent) :
     for (int i = 0;i < NOZZLE_NUM;i++){
         ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 0),i,Qt::EditRole);
     }
-//    ui->tableWidget->setItem(0, 0, new QTableWidgetItem("0"));
-#if 0
-    model = new QStandardItemModel(NOZZLE_NUM,9,this);
-        ui->tableView->setModel(model);
-
+#if 1
+    model = new QStandardItemModel(NOZZLE_NUM,8,this);
+    model->setHorizontalHeaderLabels(horzHeaders);
     // Generate data
     for(int row = 0; row < NOZZLE_NUM; row++)
     {
@@ -34,12 +31,13 @@ Scada::Scada(QWidget *parent) :
         {
             QModelIndex index
                 = model->index(row,col,QModelIndex());
-            // 0 for all data
             model->setData(index,0);
         }
     }
+    ui->tableView->setModel(model);
+    ui->tableView->verticalHeader()->hide();
 #endif
-    updateLog();
+    updateScada();
 }
 
 Scada::~Scada()
@@ -47,12 +45,9 @@ Scada::~Scada()
     delete ui;
 }
 
-void Scada::updateLog()
+void Scada::updateScada()
 {
-    uint8_t id = 0;
-//    QTableWidgetItem *item = new QTableWidgetItem();
-    id = LogRecord::getRecord()->getId();
-    prepareData(id);
+    QTableWidgetItem *item = new QTableWidgetItem();
     for(int i = 0;i < NOZZLE_NUM;i++){
 #if 1
         ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 1),nozzle_arr[i].time,Qt::EditRole);
@@ -76,9 +71,10 @@ void Scada::updateLog()
         ui->tableWidget->setItem(i,5,item);
         item->setData(Qt::DisplayRole,nozzle_arr[i].shutdown);
         ui->tableWidget->setItem(i,6,item);
-        item->setData(Qt::DisplayRole,time);
+        item->setData(Qt::DisplayRole,nozzle_arr[i].time);
         ui->tableWidget->setItem(i,7,item);
         ui->tableWidget->update();
+        ui->tableView->setModel(model);
 #endif
 
 #if 0
@@ -99,8 +95,49 @@ void Scada::updateLog()
     }
 }
 
+Scada *Scada::getScada()
+{
+    static Scada* self;
+    if(self==nullptr){
+        self=new Scada();
+    }
+    return self;
+}
+
+void Scada::updateNozzleData(NozzleMessage &data)
+{
+    uint8_t id_nozzle = 0;
+    uint8_t status = 0;
+    QDateTime time_current = QDateTime::currentDateTime();
+    id_nozzle = data.Id;
+    status = data.Status;
+    nozzle_arr[id_nozzle].time = time_current.toString();
+    switch (status) {
+    case 0:
+        nozzle_arr[id_nozzle].liter = data.liter_1;
+        nozzle_arr[id_nozzle].unitPrice = data.unitPrice_1;
+        nozzle_arr[id_nozzle].totalMoney = data.money_1;
+        break;
+    case 1:
+        nozzle_arr[id_nozzle].lostLog++;
+        nozzle_arr[id_nozzle].liter = data.liter_1;
+        nozzle_arr[id_nozzle].unitPrice = data.unitPrice_1;
+        nozzle_arr[id_nozzle].totalMoney = data.money_1;
+        break;
+    case 2:
+        nozzle_arr[id_nozzle].disconnect++;
+        break;
+    case 3:
+        nozzle_arr[id_nozzle].shutdown++;
+        break;
+    default:
+        break;
+    }
+}
+
 void Scada::prepareData(uint8_t id_nozzle)
 {
+#if 0
     char* buff;
     QString stringBuff;
     buff = LogRecord::getRecord()->getMoney_1();
@@ -133,27 +170,5 @@ void Scada::prepareData(uint8_t id_nozzle)
     stringBuff.append(QString::number((int)(buff[6])));
     stringBuff.append(QString::number((int)(buff[7])));
     nozzle_arr[id_nozzle].liter = stringBuff.toLongLong();
-}
-
-Scada *Scada::getScada()
-{
-    static Scada* self;
-    if(self==nullptr){
-        self=new Scada();
-    }
-    return self;
-}
-
-void Scada::updateErr(uint8_t id_nozzle)
-{
-    QDateTime time_current = QDateTime::currentDateTime();
-    nozzle_arr[id_nozzle].time = time_current.toString();
-//    if(LogRecord::getRecord()->getSeqence())
-        if ((int)(LogRecord::getRecord()->getStatus()) == 1){
-            nozzle_arr[id_nozzle].lostLog++;
-        }else if((int)(LogRecord::getRecord()->getStatus()) == 2){
-            nozzle_arr[id_nozzle].disconnect++;
-        }else if((int)(LogRecord::getRecord()->getStatus()) == 3){
-            nozzle_arr[id_nozzle].shutdown++;
-        }
+#endif
 }

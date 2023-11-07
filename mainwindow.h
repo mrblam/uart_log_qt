@@ -23,12 +23,13 @@ public:
 private slots:
     void on_pushOpen_pressed();
 
-    void readDataSerial(QByteArray data);
+    void insertDataToDb(QByteArray data);
 
     void on_btnSend_clicked();
 
     void on_btnScada_clicked();
 
+    void showDataReceived(QByteArray data);
 private:
     Ui::MainWindow *ui;
     SerialPort _port;

@@ -15,7 +15,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     loadPort();
-    connect(&_port,&SerialPort::dataReceived,this,&MainWindow::readDataSerial);
+    connect(&_port,&SerialPort::showDataReceived,this,&MainWindow::showDataReceived);
     connect(this,&MainWindow::prepareData,Scada::getScada(),&Scada::updateLog);
     connect(this,&MainWindow::updateErr,Scada::getScada(),&Scada::updateErr);
     this->setWindowTitle("Peco Log");
@@ -77,8 +77,9 @@ void MainWindow::on_pushOpen_pressed()
     }
 }
 //sequence,id,status,1,2,3,4
-void MainWindow::readDataSerial(QByteArray data)
-{//// data received
+void MainWindow::insertDataToDb(QByteArray data)
+{//// data oke to write to db
+
     static QSqlTableModel *model_1 = new QSqlTableModel;
     QDateTime currentTime;
     QString l_data;
@@ -86,57 +87,55 @@ void MainWindow::readDataSerial(QByteArray data)
     QString qry_cmd = "insert into LogRS232 values(";
     LogRecord *record = LogRecord::getRecord();
     QSqlQuery query;
-    ui->listMessage->addItem(QString (data));
+//    ui->listMessage->ad
     l_data = (data.toHex());
-    data_part = l_data.mid(2,2);
+    data_part = l_data.mid(4,2);
     qry_cmd.append(data_part); //Sequence
-    if(data_part.toInt() > LogRecord::getRecord()->getSeqence()){
+    if(1){ //data_part.toInt() > record->getSeqence()
         record->parseData(&data);
         emit prepareData();
         qry_cmd.append(",");
-        data_part = l_data.mid(4,2);
-        qry_cmd.append(data_part); //ID
-        if(data_part.toInt()){
-            emit updateErr(data_part.toInt());
-        }
-        qry_cmd.append(",");
         data_part = l_data.mid(6,2);
+        qry_cmd.append(data_part); //ID
+        emit updateErr(data_part.toInt());
+        qry_cmd.append(",");
+        data_part = l_data.mid(8,2);
         qry_cmd.append(data_part); //Status
         qry_cmd.append(",");
-        data_part = l_data.mid(8,16);
+        data_part = l_data.mid(10,16);
         qry_cmd.append(data_part);
         qry_cmd.append(",");
-        data_part = l_data.mid(24,12);
+        data_part = l_data.mid(26,12);
         qry_cmd.append(data_part);
         qry_cmd.append(",");
-        data_part = l_data.mid(36,16);
+        data_part = l_data.mid(38,16);
         qry_cmd.append(data_part);
         qry_cmd.append(",");
-        data_part = l_data.mid(52,16);
+        data_part = l_data.mid(54,16);
         qry_cmd.append(data_part);
         qry_cmd.append(",");
-        data_part = l_data.mid(68,12);
+        data_part = l_data.mid(70,12);
         qry_cmd.append(data_part);
         qry_cmd.append(",");
-        data_part = l_data.mid(80,16);
+        data_part = l_data.mid(82,16);
         qry_cmd.append(data_part);
         qry_cmd.append(",");
-        data_part = l_data.mid(96,16);
+        data_part = l_data.mid(98,16);
         qry_cmd.append(data_part);
         qry_cmd.append(",");
-        data_part = l_data.mid(112,12);
+        data_part = l_data.mid(114,12);
         qry_cmd.append(data_part);
         qry_cmd.append(",");
-        data_part = l_data.mid(124,16);
+        data_part = l_data.mid(126,16);
         qry_cmd.append(data_part);
         qry_cmd.append(",");
-        data_part = l_data.mid(140,16);
+        data_part = l_data.mid(142,16);
         qry_cmd.append(data_part);
         qry_cmd.append(",");
-        data_part = l_data.mid(156,12);
+        data_part = l_data.mid(158,12);
         qry_cmd.append(data_part);
         qry_cmd.append(",");
-        data_part = l_data.mid(168,16);
+        data_part = l_data.mid(170,16);
         qry_cmd.append(data_part);
         qry_cmd.append(",");
         qry_cmd.append(":time)");
@@ -164,8 +163,12 @@ void MainWindow::on_btnSend_clicked()
 void MainWindow::on_btnScada_clicked()
 {
     Scada *Scada_window = new Scada;
-//    connect(this,&MainWindow::prepareData,Scada::getScada(),&Scada::updateLog);
     Scada_window->show();
+}
+
+void MainWindow::showDataReceived(QByteArray data)
+{
+    ui->listMessage->addItem(QString (data.toHex()));
 }
 
 #if 0

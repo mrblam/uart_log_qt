@@ -3,6 +3,7 @@
 #include "logrecord.h"
 #include "nozzlehelper.h"
 
+
 static nozzle nozzle_arr[NOZZLE_NUM];
 
 Scada::Scada(QWidget *parent) :
@@ -22,6 +23,22 @@ Scada::Scada(QWidget *parent) :
         ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 0),i,Qt::EditRole);
     }
 //    ui->tableWidget->setItem(0, 0, new QTableWidgetItem("0"));
+#if 0
+    model = new QStandardItemModel(NOZZLE_NUM,9,this);
+        ui->tableView->setModel(model);
+
+    // Generate data
+    for(int row = 0; row < NOZZLE_NUM; row++)
+    {
+        for(int col = 0; col < 9; col++)
+        {
+            QModelIndex index
+                = model->index(row,col,QModelIndex());
+            // 0 for all data
+            model->setData(index,0);
+        }
+    }
+#endif
     updateLog();
 }
 
@@ -32,14 +49,14 @@ Scada::~Scada()
 
 void Scada::updateLog()
 {
-    int id = 0;
+    uint8_t id = 0;
 //    QTableWidgetItem *item = new QTableWidgetItem();
 
     id = LogRecord::getRecord()->getId();
     prepareData(id);
     for(int i = 0;i < NOZZLE_NUM;i++){
 #if 1
-        ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 1),time,Qt::EditRole);
+        ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 1),nozzle_arr[i].time,Qt::EditRole);
         ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 2),nozzle_arr[i].disconnect,Qt::EditRole);
         ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 3),nozzle_arr[i].lostLog,Qt::EditRole);
         ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 4),nozzle_arr[i].shutdown,Qt::EditRole);
@@ -64,13 +81,29 @@ void Scada::updateLog()
         ui->tableWidget->setItem(i,7,item);
         ui->tableWidget->update();
 #endif
+
+#if 0
+        // Generate data
+        for(int row = 0; row < NOZZLE_NUM; row++)
+        {
+            for(int col = 0; col < 9; col++)
+            {
+                QModelIndex index
+                    = model->index(row,col,QModelIndex());
+                // 0 for all data
+                model->setData(index,nozzle_arr[5].unitPrice);
+                emit model->dataChanged(index,index);
+            }
+        }
+//        emit model->dataChanged(index,index);
+#endif
     }
 
 //    emit ui->tableWidget->model()->dataChanged(ui->tableWidget->model()->index(0, 0), ui->tableWidget->model()->index(10, 8));
 //    ui->tableWidget->viewport()->update();
 }
 
-void Scada::prepareData(int id_nozzle)
+void Scada::prepareData(uint8_t id_nozzle)
 {
     char* buff;
     QString stringBuff;
@@ -115,9 +148,11 @@ Scada *Scada::getScada()
     return self;
 }
 
-void Scada::updateErr(int id_nozzle)
+void Scada::updateErr(uint8_t id_nozzle)
 {
-    if(LogRecord::getRecord()->getSeqence())
+    QDateTime time_current = QDateTime::currentDateTime();
+    nozzle_arr[id_nozzle].time = time_current.toString();
+//    if(LogRecord::getRecord()->getSeqence())
         if ((int)(LogRecord::getRecord()->getStatus()) == 1){
             nozzle_arr[id_nozzle].lostLog++;
         }else if((int)(LogRecord::getRecord()->getStatus()) == 2){

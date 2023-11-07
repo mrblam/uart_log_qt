@@ -116,22 +116,22 @@ void LogRecord::parseData(QByteArray * const p_data)
         char *l_data = p_data->data();
         checksum = l_data[91];
         if(1){ //checksum == calcChecksum(l_data)
-            sequence = l_data[1];
-            id = l_data[2];
-            status = l_data[3];
+            sequence = l_data[2];
+            id = l_data[3];
+            status = l_data[4];
             if(status == 0 || status == 1){
-                strncpy((char *)liter_1,(const char *)&l_data[4],8);
-                strncpy((char *)unitPrice_1,(const char *)&l_data[12],6);
-                strncpy((char *)money_1,(const char *)&l_data[18],8);
-                strncpy((char *)liter_2,(const char *)&l_data[26],8);
-                strncpy((char *)unitPrice_2,(const char *)&l_data[34],6);
-                strncpy((char *)money_2,(const char *)&l_data[40],8);
-                strncpy((char *)liter_3,(const char *)&l_data[48],8);
-                strncpy((char *)unitPrice_3,(const char *)&l_data[56],6);
-                strncpy((char *)money_3,(const char *)&l_data[62],8);
-                strncpy((char *)liter_4,(const char *)&l_data[70],8);
-                strncpy((char *)unitPrice_4,(const char *)&l_data[71],6);
-                strncpy((char *)money_4,(const char *)&l_data[84],8);
+                strncpy((char *)liter_1,(const char *)&l_data[5],8);
+                strncpy((char *)unitPrice_1,(const char *)&l_data[13],6);
+                strncpy((char *)money_1,(const char *)&l_data[19],8);
+                strncpy((char *)liter_2,(const char *)&l_data[27],8);
+                strncpy((char *)unitPrice_2,(const char *)&l_data[35],6);
+                strncpy((char *)money_2,(const char *)&l_data[41],8);
+                strncpy((char *)liter_3,(const char *)&l_data[49],8);
+                strncpy((char *)unitPrice_3,(const char *)&l_data[57],6);
+                strncpy((char *)money_3,(const char *)&l_data[63],8);
+                strncpy((char *)liter_4,(const char *)&l_data[71],8);
+                strncpy((char *)unitPrice_4,(const char *)&l_data[79],6);
+                strncpy((char *)money_4,(const char *)&l_data[85],8);
             }else{
                 if(status == 2) disconnect++;
                 if(status == 3) shutdown++;

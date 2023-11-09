@@ -21,7 +21,7 @@ Scada::Scada(QWidget *parent) :
     for (int i = 0;i < NOZZLE_NUM;i++){
         ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 0),i,Qt::EditRole);
     }
-#if 1
+#if 0
     model = new QStandardItemModel(NOZZLE_NUM,8,this);
     model->setHorizontalHeaderLabels(horzHeaders);
     // Generate data
@@ -47,7 +47,7 @@ Scada::~Scada()
 
 void Scada::updateScada()
 {
-    QTableWidgetItem *item = new QTableWidgetItem();
+//    QTableWidgetItem *item = new QTableWidgetItem();
     for(int i = 0;i < NOZZLE_NUM;i++){
 #if 1
         ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 1),nozzle_arr[i].time,Qt::EditRole);
@@ -114,15 +114,12 @@ void Scada::updateNozzleData(NozzleMessage &data)
     nozzle_arr[id_nozzle].time = time_current.toString();
     switch (status) {
     case 0:
-        nozzle_arr[id_nozzle].liter = data.liter_1;
-        nozzle_arr[id_nozzle].unitPrice = data.unitPrice_1;
-        nozzle_arr[id_nozzle].totalMoney = data.money_1;
+        nozzle_arr[id_nozzle].liter = nozzle_arr[id_nozzle].liter + data.liter_1.toLongLong();
+        nozzle_arr[id_nozzle].unitPrice = data.unitPrice_1.toLongLong();
+        nozzle_arr[id_nozzle].totalMoney = nozzle_arr[id_nozzle].totalMoney + data.money_1.toLongLong();
         break;
     case 1:
         nozzle_arr[id_nozzle].lostLog++;
-        nozzle_arr[id_nozzle].liter = data.liter_1;
-        nozzle_arr[id_nozzle].unitPrice = data.unitPrice_1;
-        nozzle_arr[id_nozzle].totalMoney = data.money_1;
         break;
     case 2:
         nozzle_arr[id_nozzle].disconnect++;

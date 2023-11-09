@@ -6,9 +6,9 @@
 #define NOZZLE_NUM      10
 
 typedef struct nozzle{
-    QByteArray unitPrice;
-    QByteArray liter;
-    QByteArray totalMoney;
+    uint64_t unitPrice;
+    uint64_t liter;
+    uint64_t totalMoney;
     uint64_t disconnect = 0;
     uint64_t lostLog = 0;
     uint64_t shutdown = 0;

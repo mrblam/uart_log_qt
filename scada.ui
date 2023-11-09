@@ -17,9 +17,6 @@
    <item row="0" column="0">
     <widget class="QTableWidget" name="tableWidget"/>
    </item>
-   <item row="0" column="1">
-    <widget class="QTableView" name="tableView"/>
-   </item>
   </layout>
  </widget>
  <resources/>

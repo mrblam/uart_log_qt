@@ -48,16 +48,18 @@ uint8_t SerialPort::getRxDataPack()
 {
     if(rxBuffer.length()<=0) return (-1);
     int32_t start=rxBuffer.indexOf(STX);
+    if(start < 0) return(-1);
     int32_t finish=rxBuffer.indexOf(ETX);
-    if(finish < start){
-        rxBuffer.remove(0,start);
+    if(finish < 0) return(-1);
+    if((finish < start)){
+        rxBuffer.remove(0,start-1);
         return (-1);
     }
     uint8_t msg_type = finish-start;
     packReady=rxBuffer.mid(start+1,finish-start-1);
-    qDebug()<< "--> " + packReady.toHex();
+    qDebug()<< "packready --> " + packReady.toHex();
     packReady = convertDataReceived(packReady,finish-start-1);
-    qDebug()<< "--> " + packReady.toHex();
+    qDebug()<< "packconvert --> " + packReady.toHex();
     rxBuffer.remove(start,finish - start + 1);
     return msg_type;
 }
@@ -75,25 +77,25 @@ void SerialPort::timeOut()
 void SerialPort::processReceivedData()
 {
     QByteArray l_buffer;
-    pack_found=getRxDataPack();
+    pack_found=getRxDataPack();//polling
     if(pack_found<=0) return;
 
     switch (pack_found) {
     case 5:
         nozzleMsg.Id            = packReady[0];
         nozzleMsg.Status        = packReady[1];
-        nozzleMsg.liter_1       = "0xFFFFF";
-        nozzleMsg.unitPrice_1   = "0xFFFFF";
-        nozzleMsg.money_1       = "0xFFFFF";
-        nozzleMsg.liter_2       = "0xFFFFF";
-        nozzleMsg.unitPrice_2   = "0xFFFFF";
-        nozzleMsg.money_2       = "0xFFFFF";
-        nozzleMsg.liter_3       = "0xFFFFF";
-        nozzleMsg.unitPrice_3   = "0xFFFFF";
-        nozzleMsg.money_3       = "0xFFFFF";
-        nozzleMsg.liter_4       = "0xFFFFF";
-        nozzleMsg.unitPrice_4   = "0xFFFFF";
-        nozzleMsg.money_4       = "0xFFFFF";
+        nozzleMsg.liter_1       = "0xB9";
+        nozzleMsg.unitPrice_1   = "0xB9";
+        nozzleMsg.money_1       = "0xB9";
+        nozzleMsg.liter_2       = "0xB9";
+        nozzleMsg.unitPrice_2   = "0xB9";
+        nozzleMsg.money_2       = "0xB9";
+        nozzleMsg.liter_3       = "0xB9";
+        nozzleMsg.unitPrice_3   = "0xB9";
+        nozzleMsg.money_3       = "0xB9";
+        nozzleMsg.liter_4       = "0xB9";
+        nozzleMsg.unitPrice_4   = "0xB9";
+        nozzleMsg.money_4       = "0xB9";
         emit updateNozzleData(nozzleMsg);
         emit insertDataToDb(nozzleMsg);
         break;

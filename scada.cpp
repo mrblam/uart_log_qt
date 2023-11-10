@@ -14,10 +14,11 @@ Scada::Scada(QWidget *parent) :
     QStringList horzHeaders;
     ui->tableWidget->setRowCount(NOZZLE_NUM);
     ui->tableWidget->setColumnCount(8);
-    horzHeaders << "Nozzle" << "Time" << "Disconnect" << "Lost Log" << "Shut Down" <<  "Total Money" << "Liter" << "Unit Price";
+    horzHeaders << QObject::tr("Vòi số") << QObject::tr("Thời điểm gần nhất") << QObject::tr("Số lần mất kết nối") << QObject::tr("Số lần thiếu bản tin") << QObject::tr("Số lần mất điện") <<  QObject::tr("Thành tiền(vnđ)") << QObject::tr("Lượng lít(ml)") << QObject::tr("Đơn giá(vnđ/lít)");
     ui->tableWidget->setHorizontalHeaderLabels(horzHeaders);
     ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tableWidget->verticalHeader()->setVisible(false);
+    ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     for (int i = 0;i < NOZZLE_NUM;i++){
         ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 0),i,Qt::EditRole);
     }
@@ -114,9 +115,9 @@ void Scada::updateNozzleData(NozzleMessage &data)
     nozzle_arr[id_nozzle].time = time_current.toString();
     switch (status) {
     case 0:
-        nozzle_arr[id_nozzle].liter = nozzle_arr[id_nozzle].liter + data.liter_1.toLongLong();
-        nozzle_arr[id_nozzle].unitPrice = data.unitPrice_1.toLongLong();
-        nozzle_arr[id_nozzle].totalMoney = nozzle_arr[id_nozzle].totalMoney + data.money_1.toLongLong();
+        nozzle_arr[id_nozzle].liter = data.liter_4.toLongLong();
+        nozzle_arr[id_nozzle].unitPrice = data.unitPrice_4.toLongLong();
+        nozzle_arr[id_nozzle].totalMoney = data.money_4.toLongLong();
         break;
     case 1:
         nozzle_arr[id_nozzle].lostLog++;
@@ -130,42 +131,4 @@ void Scada::updateNozzleData(NozzleMessage &data)
     default:
         break;
     }
-}
-
-void Scada::prepareData(uint8_t id_nozzle)
-{
-#if 0
-    char* buff;
-    QString stringBuff;
-    buff = LogRecord::getRecord()->getMoney_1();
-    stringBuff.append(QString::number((int)(buff[0])));
-    stringBuff.append(QString::number((int)(buff[1])));
-    stringBuff.append(QString::number((int)(buff[2])));
-    stringBuff.append(QString::number((int)(buff[3])));
-    stringBuff.append(QString::number((int)(buff[4])));
-    stringBuff.append(QString::number((int)(buff[5])));
-    stringBuff.append(QString::number((int)(buff[6])));
-    stringBuff.append(QString::number((int)(buff[7])));
-    nozzle_arr[id_nozzle].totalMoney = stringBuff.toLongLong();
-    stringBuff.clear();
-    buff = LogRecord::getRecord()->getUnitPrice_1();
-    stringBuff.append(QString::number((int)(buff[0])));
-    stringBuff.append(QString::number((int)(buff[1])));
-    stringBuff.append(QString::number((int)(buff[2])));
-    stringBuff.append(QString::number((int)(buff[3])));
-    stringBuff.append(QString::number((int)(buff[4])));
-    stringBuff.append(QString::number((int)(buff[5])));
-    nozzle_arr[id_nozzle].unitPrice = stringBuff.toLongLong();
-    stringBuff.clear();
-    buff = LogRecord::getRecord()->getLiter_1();
-    stringBuff.append(QString::number((int)(buff[0])));
-    stringBuff.append(QString::number((int)(buff[1])));
-    stringBuff.append(QString::number((int)(buff[2])));
-    stringBuff.append(QString::number((int)(buff[3])));
-    stringBuff.append(QString::number((int)(buff[4])));
-    stringBuff.append(QString::number((int)(buff[5])));
-    stringBuff.append(QString::number((int)(buff[6])));
-    stringBuff.append(QString::number((int)(buff[7])));
-    nozzle_arr[id_nozzle].liter = stringBuff.toLongLong();
-#endif
 }

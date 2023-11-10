@@ -15,17 +15,50 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0" rowspan="2">
-     <widget class="QComboBox" name="portList"/>
+    <item row="2" column="0">
+     <widget class="QLabel" name="labelReceivedData">
+      <property name="text">
+       <string>Data Received</string>
+      </property>
+     </widget>
     </item>
-    <item row="0" column="1" rowspan="2">
+    <item row="1" column="2">
+     <widget class="QPushButton" name="btnSend">
+      <property name="text">
+       <string>Send</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="4">
+     <widget class="QLineEdit" name="cmdSQL"/>
+    </item>
+    <item row="0" column="1">
      <widget class="QPushButton" name="pushOpen">
       <property name="text">
        <string>Open</string>
       </property>
      </widget>
     </item>
-    <item row="0" column="2" rowspan="2">
+    <item row="0" column="5">
+     <widget class="QPushButton" name="pushQuery">
+      <property name="text">
+       <string>Query</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="3" rowspan="3" colspan="3">
+     <widget class="QTableView" name="tableViewDb"/>
+    </item>
+    <item row="1" column="0" colspan="2">
+     <widget class="QLineEdit" name="lnMessage"/>
+    </item>
+    <item row="0" column="0">
+     <widget class="QComboBox" name="portList"/>
+    </item>
+    <item row="3" column="0" colspan="3">
+     <widget class="QListWidget" name="listMessage"/>
+    </item>
+    <item row="0" column="2">
      <widget class="QPushButton" name="btnScada">
       <property name="text">
        <string>SCADA</string>
@@ -39,28 +72,23 @@
       </property>
      </widget>
     </item>
-    <item row="1" column="3" rowspan="4">
-     <widget class="QTableView" name="tableViewDb"/>
-    </item>
-    <item row="2" column="0" colspan="2">
-     <widget class="QLineEdit" name="lnMessage"/>
-    </item>
     <item row="2" column="2">
-     <widget class="QPushButton" name="btnSend">
-      <property name="text">
-       <string>Send</string>
+     <widget class="QLCDNumber" name="msgCounter">
+      <property name="font">
+       <font>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="smallDecimalPoint">
+       <bool>false</bool>
+      </property>
+      <property name="digitCount">
+       <number>16</number>
+      </property>
+      <property name="value" stdset="0">
+       <double>0.000000000000000</double>
       </property>
      </widget>
-    </item>
-    <item row="3" column="0">
-     <widget class="QLabel" name="labelReceivedData">
-      <property name="text">
-       <string>Data Received</string>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="0" colspan="3">
-     <widget class="QListWidget" name="listMessage"/>
     </item>
    </layout>
   </widget>

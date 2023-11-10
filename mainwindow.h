@@ -30,6 +30,8 @@ private slots:
     void on_btnScada_clicked();
 
     void showDataReceived(QByteArray data);
+    void on_pushQuery_clicked();
+
 private:
     Ui::MainWindow *ui;
     SerialPort _port;

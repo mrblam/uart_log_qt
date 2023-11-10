@@ -3,7 +3,7 @@
 #include <QObject>
 #include <QDateTime>
 
-#define NOZZLE_NUM      10
+#define NOZZLE_NUM      40
 
 typedef struct nozzle{
     uint64_t unitPrice;

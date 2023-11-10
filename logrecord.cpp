@@ -107,63 +107,9 @@ void LogRecord::setSequent(int)
 
 }
 
-
-
-void LogRecord::parseData(QByteArray * const p_data)
-{
-#if 1
-    if(1){
-        char *l_data = p_data->data();
-        checksum = l_data[91];
-        if(1){ //checksum == calcChecksum(l_data)
-            sequence = l_data[2];
-            id = l_data[3];
-            status = l_data[4];
-            if(status == 0 || status == 1){
-                strncpy((char *)liter_1,(const char *)&l_data[5],8);
-                strncpy((char *)unitPrice_1,(const char *)&l_data[13],6);
-                strncpy((char *)money_1,(const char *)&l_data[19],8);
-                strncpy((char *)liter_2,(const char *)&l_data[27],8);
-                strncpy((char *)unitPrice_2,(const char *)&l_data[35],6);
-                strncpy((char *)money_2,(const char *)&l_data[41],8);
-                strncpy((char *)liter_3,(const char *)&l_data[49],8);
-                strncpy((char *)unitPrice_3,(const char *)&l_data[57],6);
-                strncpy((char *)money_3,(const char *)&l_data[63],8);
-                strncpy((char *)liter_4,(const char *)&l_data[71],8);
-                strncpy((char *)unitPrice_4,(const char *)&l_data[79],6);
-                strncpy((char *)money_4,(const char *)&l_data[85],8);
-            }else{
-                if(status == 2) disconnect++;
-                if(status == 3) shutdown++;
-            }
-
-        }else{
-            qDebug() << "checksum error";
-        }
-
-    }
-#endif
-}
-
 char LogRecord::calcChecksum(char *data)
 {
     char l_result;
     l_result = data[91];
     return l_result;
 }
-//        QString l_data;
-//        QString data_part;
-//        l_data = p_data->toHex();
-//        data_part = l_data.mid(0,16);
-//        uint8_t a = '\0' ;
-//        uint64_t c;
-//        char b;
-//        b = p_data->at(3);
-//        a = (int)b;
-//        bool ok;
-//        c = data_part.toULongLong(&ok,16);
-
-//        qDebug()<< c <<a;
-//        id = p_data[1].toUInt();
-//        status = p_data[2].toInt();
-//        liter_1 = p_data[3].toInt();

@@ -8,6 +8,8 @@
 #include <QTimer>
 #include <QDateTime>
 #include <scada.h>
+#include <QDebug>
+#include <QString>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -78,9 +80,9 @@ void MainWindow::insertDataToDb(NozzleMessage &data)
     QDateTime currentTime;
     QString qry_cmd = "insert into LogRS232 values(";
     QSqlQuery query;
-    qry_cmd.append(std::to_string(_port.nozzleMsg.Id));
+    qry_cmd.append(QString::number(_port.nozzleMsg.Id));
     qry_cmd.append(",");
-    qry_cmd.append(std::to_string(_port.nozzleMsg.Status));
+    qry_cmd.append(QString::number(_port.nozzleMsg.Status));
     qry_cmd.append(",");
     qry_cmd.append(_port.nozzleMsg.liter_2);
     qry_cmd.append(",");
@@ -123,7 +125,7 @@ void MainWindow::on_btnSend_clicked()
 }
 void MainWindow::on_btnScada_clicked()
 {
-    Scada *Scada_window = new Scada;
+    Scada *Scada_window = Scada::getScada();
     Scada_window->showMaximized();
 }
 void MainWindow::showDataReceived(QByteArray data)

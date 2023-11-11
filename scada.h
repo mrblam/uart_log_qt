@@ -5,6 +5,8 @@
 #include <QDateTime>
 #include <QStandardItemModel>
 #include <nozzlehelper.h>
+#include <QTimer>
+
 
 namespace Ui {
 class Scada;
@@ -24,6 +26,7 @@ public slots:
 private:
     Ui::Scada *ui;
     QStandardItemModel *model;
+    QTimer heartbeatTicker;
 };
 
 #endif // SCADA_H

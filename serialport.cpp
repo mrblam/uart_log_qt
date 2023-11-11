@@ -76,26 +76,25 @@ void SerialPort::timeOut()
 }
 void SerialPort::processReceivedData()
 {
-    QByteArray l_buffer;
     pack_found=getRxDataPack();//polling
     if(pack_found<=0) return;
 
     switch (pack_found) {
-    case 5:
+    case 4:
         nozzleMsg.Id            = packReady[0];
         nozzleMsg.Status        = packReady[1];
-        nozzleMsg.liter_1       = "0xB9";
-        nozzleMsg.unitPrice_1   = "0xB9";
-        nozzleMsg.money_1       = "0xB9";
-        nozzleMsg.liter_2       = "0xB9";
-        nozzleMsg.unitPrice_2   = "0xB9";
-        nozzleMsg.money_2       = "0xB9";
-        nozzleMsg.liter_3       = "0xB9";
-        nozzleMsg.unitPrice_3   = "0xB9";
-        nozzleMsg.money_3       = "0xB9";
-        nozzleMsg.liter_4       = "0xB9";
-        nozzleMsg.unitPrice_4   = "0xB9";
-        nozzleMsg.money_4       = "0xB9";
+        nozzleMsg.liter_1       = "0x00";
+        nozzleMsg.unitPrice_1   = "0x00";
+        nozzleMsg.money_1       = "0x00";
+        nozzleMsg.liter_2       = "0x00";
+        nozzleMsg.unitPrice_2   = "0x00";
+        nozzleMsg.money_2       = "0x00";
+        nozzleMsg.liter_3       = "0x00";
+        nozzleMsg.unitPrice_3   = "0x00";
+        nozzleMsg.money_3       = "0x00";
+        nozzleMsg.liter_4       = "0x00";
+        nozzleMsg.unitPrice_4   = "0x00";
+        nozzleMsg.money_4       = "0x00";
         emit updateNozzleData(nozzleMsg);
         emit insertDataToDb(nozzleMsg);
         break;

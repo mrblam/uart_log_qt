@@ -6,7 +6,7 @@
 #include <QSerialPort>
 #include <QSerialPortInfo>
 #include "serialport.h"
-#include "logrecord.h"
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }

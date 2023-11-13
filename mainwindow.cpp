@@ -18,10 +18,6 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    for(int i = 0;i < NOZZLE_NUM;i++){
-        ui->nozzleID->addItem(QString::number(i));
-    }
-    ui->nozzleID->addItem("*");
     loadPort();
     connect(&_port,&SerialPort::showDataReceived,this,&MainWindow::showDataReceived);
     connect(&_port,&SerialPort::insertDataToDb,this,&MainWindow::insertDataToDb);
@@ -140,55 +136,6 @@ void MainWindow::showDataReceived(QByteArray data)
 }
 void MainWindow::on_pushQuery_clicked()
 {
-    static QSqlTableModel *model_1 = new QSqlTableModel;
-    static QSqlTableModel *model_2 = new QSqlTableModel;
-    QSqlQuery query1;
-    QSqlQuery query2;
-    QString qry_cmd2 ;//= ui->cmdSQL->text()
-    QString qry_cmd;
-    qry_cmd2.append("SELECT * FROM LogRS232 where Time between '");
-    qry_cmd2.append(ui->dateTimeBegin->dateTime().toString());
-    qry_cmd2.append("' and '");
-    qry_cmd2.append(ui->dateTimeFinish->dateTime().toString());
-    qry_cmd2.append("'");
-    //
-    qry_cmd.append("select ID,Status,Count(*) as SoLan from LogRS232 where Time between '");
-    qry_cmd.append(ui->dateTimeBegin->dateTime().toString());
-    qry_cmd.append("' and '");
-    qry_cmd.append(ui->dateTimeFinish->dateTime().toString());
-    qry_cmd.append("'");
-    //
-    QString aa = ui->nozzleID->currentText();
-    if(aa == "*"){
-        qry_cmd.append(" group by ID,Status");
-    }else{
-        qry_cmd.append(" and ID = ");
-        qry_cmd.append(ui->nozzleID->currentText());
-        qry_cmd.append(" group by Status");
-        qry_cmd2.append(" and ID = ");
-        qry_cmd2.append(ui->nozzleID->currentText());
-    }
-    query1.prepare(qry_cmd);
-    if (!query1.exec(qry_cmd)) {
-        qDebug() << "1Insert failed:" << query1.lastError();
-    }
-    model_1->setQuery(std::move(query1));
-    model_1->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    model_1->select();
-    ui->tableViewfilter->setModel(model_1);
-    ui->tableViewfilter->show();
-    //SELECT ID,Status,VolumeIdle,UnitPriceIdle,CostIdle FROM LogRS232 where Time between 'Mon Nov 13 00:03:25 2023' and 'Mon Nov 13 15:16:11 2023' and ID = 1 ORDER BY Time DESC
-//    LIMIT 1
-
-    query2.prepare(qry_cmd2);
-    if (!query2.exec(qry_cmd2)) {
-        qDebug() << "2Insert failed:" << query2.lastError();
-    }
-    model_2->setQuery(std::move(query2));
-    model_2->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    model_2->select();
-    ui->tableViewNewest->setModel(model_2);
-    ui->tableViewNewest->show();
     Filter *Filter_window = Filter::getFilter();
     Filter_window->showMaximized();
 }

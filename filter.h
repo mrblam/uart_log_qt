@@ -15,6 +15,9 @@ public:
     explicit Filter(QWidget *parent = nullptr);
     ~Filter();
     static Filter *getFilter();
+private slots:
+    void on_pushQuery_clicked();
+
 private:
     Ui::Filter *ui;
 };

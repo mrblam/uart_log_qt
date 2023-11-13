@@ -9,6 +9,7 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    filter.cpp \
     localdb.cpp \
     logrecord.cpp \
     main.cpp \
@@ -17,6 +18,7 @@ SOURCES += \
     serialport.cpp
 
 HEADERS += \
+    filter.h \
     localdb.h \
     logrecord.h \
     mainwindow.h \
@@ -25,6 +27,7 @@ HEADERS += \
     serialport.h
 
 FORMS += \
+    filter.ui \
     mainwindow.ui \
     scada.ui
 

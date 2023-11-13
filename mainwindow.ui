@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>811</width>
+    <height>444</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,48 +15,51 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
-     <widget class="QComboBox" name="portList"/>
-    </item>
-    <item row="0" column="1">
-     <widget class="QPushButton" name="pushOpen">
-      <property name="text">
-       <string>Open</string>
-      </property>
-     </widget>
-    </item>
     <item row="0" column="3">
-     <widget class="QPushButton" name="btnScada">
-      <property name="text">
-       <string>SCADA</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="4">
      <widget class="QLabel" name="labelDatabase">
       <property name="text">
        <string>Database</string>
       </property>
      </widget>
     </item>
-    <item row="1" column="0" colspan="3">
+    <item row="1" column="0">
+     <widget class="QComboBox" name="portList"/>
+    </item>
+    <item row="1" column="1">
+     <widget class="QPushButton" name="pushOpen">
+      <property name="text">
+       <string>Open</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="2">
+     <widget class="QPushButton" name="btnScada">
+      <property name="text">
+       <string>SCADA</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="3" rowspan="4" colspan="6">
+     <widget class="QTableView" name="tableViewDb"/>
+    </item>
+    <item row="2" column="0" colspan="2">
      <widget class="QLineEdit" name="lnMessage"/>
     </item>
-    <item row="1" column="3">
+    <item row="2" column="2">
      <widget class="QPushButton" name="btnSend">
       <property name="text">
        <string>Send</string>
       </property>
      </widget>
     </item>
-    <item row="2" column="0">
+    <item row="3" column="0">
      <widget class="QLabel" name="labelReceivedData">
       <property name="text">
        <string>Data Received</string>
       </property>
      </widget>
     </item>
-    <item row="2" column="2" colspan="2">
+    <item row="3" column="1" colspan="2">
      <widget class="QLCDNumber" name="msgCounter">
       <property name="font">
        <font>
@@ -74,33 +77,61 @@
       </property>
      </widget>
     </item>
-    <item row="3" column="0" rowspan="4" colspan="4">
+    <item row="4" column="0" rowspan="7" colspan="3">
      <widget class="QListWidget" name="listMessage"/>
     </item>
-    <item row="5" column="4">
-     <widget class="QComboBox" name="nozzleID"/>
-    </item>
-    <item row="5" column="5">
+    <item row="6" column="6">
      <widget class="QDateTimeEdit" name="dateTimeBegin"/>
     </item>
-    <item row="5" column="6">
+    <item row="6" column="7">
      <widget class="QDateTimeEdit" name="dateTimeFinish"/>
     </item>
-    <item row="5" column="7">
+    <item row="6" column="8">
      <widget class="QPushButton" name="pushQuery">
       <property name="text">
-       <string>Query</string>
+       <string>Lọc</string>
       </property>
      </widget>
     </item>
-    <item row="1" column="4" rowspan="3" colspan="4">
-     <widget class="QTableView" name="tableViewDb"/>
+    <item row="7" column="3" colspan="2">
+     <widget class="QLabel" name="label_4">
+      <property name="text">
+       <string>Status code</string>
+      </property>
+     </widget>
     </item>
-    <item row="4" column="4" colspan="4">
+    <item row="7" column="5" rowspan="4" colspan="2">
+     <widget class="QTableView" name="tableViewfilter"/>
+    </item>
+    <item row="7" column="7" rowspan="4" colspan="2">
+     <widget class="QTableView" name="tableViewNewest"/>
+    </item>
+    <item row="8" column="3" colspan="2">
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>Mất giao dịch : 1</string>
+      </property>
+     </widget>
+    </item>
+    <item row="9" column="3" colspan="2">
+     <widget class="QLabel" name="label_2">
+      <property name="text">
+       <string>Mất kết nối : 2</string>
+      </property>
+     </widget>
+    </item>
+    <item row="10" column="3" colspan="2">
+     <widget class="QLabel" name="label_3">
+      <property name="text">
+       <string>Khởi động :3</string>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="5">
+     <widget class="QComboBox" name="nozzleID"/>
+    </item>
+    <item row="5" column="3" colspan="6">
      <widget class="QLineEdit" name="cmdSQL"/>
-    </item>
-    <item row="6" column="4" colspan="4">
-     <widget class="QColumnView" name="columnView"/>
     </item>
    </layout>
   </widget>
@@ -109,7 +140,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>811</width>
      <height>21</height>
     </rect>
    </property>

@@ -10,6 +10,7 @@ Filter::Filter(QWidget *parent) :
     ui(new Ui::Filter)
 {
     ui->setupUi(this);
+    this->setWindowTitle("Lọc");
     for(int i = 0;i < NOZZLE_NUM;i++){
         ui->nozzleID->addItem(QString::number(i));
     }
@@ -36,14 +37,14 @@ void Filter::on_pushQuery_clicked()
     static QSqlTableModel *model_2 = new QSqlTableModel;
     QSqlQuery query1;
     QSqlQuery query2;
-    QString qry_cmd2 ;//= ui->cmdSQL->text()
+    QString qry_cmd2;
     QString qry_cmd;
     qry_cmd2.append("SELECT * FROM LogRS232 where Time between '");
     qry_cmd2.append(ui->dateTimeBegin->dateTime().toString());
     qry_cmd2.append("' and '");
     qry_cmd2.append(ui->dateTimeFinish->dateTime().toString());
     qry_cmd2.append("'");
-    qry_cmd.append("select ID,Status,Count(*) as SoLan from LogRS232 where Time between '");
+    qry_cmd.append("select ID,Status,Count(*) as Count from LogRS232 where Time between '");
     qry_cmd.append(ui->dateTimeBegin->dateTime().toString());
     qry_cmd.append("' and '");
     qry_cmd.append(ui->dateTimeFinish->dateTime().toString());
@@ -66,6 +67,8 @@ void Filter::on_pushQuery_clicked()
     model_1->select();
     ui->total->setModel(model_1);
     ui->total->verticalHeader()->setVisible(false);
+//    ui->total->resizeColumnsToContents();
+    ui->total->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->total->show();
     query2.prepare(qry_cmd2);
     if (!query2.exec(qry_cmd2)) {
@@ -75,7 +78,7 @@ void Filter::on_pushQuery_clicked()
     model_2->setEditStrategy(QSqlTableModel::OnManualSubmit);
     model_2->select();
     ui->logAfterFilter->setModel(model_2);
-    ui->logAfterFilter->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->logAfterFilter->resizeColumnsToContents();
     ui->logAfterFilter->show();
 }
 

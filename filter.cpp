@@ -10,11 +10,13 @@ Filter::Filter(QWidget *parent) :
     ui(new Ui::Filter)
 {
     ui->setupUi(this);
-    this->setWindowTitle("Lọc");
+    this->setWindowTitle("Báo Cáo");
     for(int i = 0;i < NOZZLE_NUM;i++){
         ui->nozzleID->addItem(QString::number(i));
     }
     ui->nozzleID->addItem("*");
+    ui->dateTimeBegin->setDateTime(QDateTime::currentDateTime());
+    ui->dateTimeFinish->setDateTime(QDateTime::currentDateTime());
 }
 
 Filter::~Filter()
@@ -44,17 +46,27 @@ void Filter::on_pushQuery_clicked()
     qry_cmd2.append("' and '");
     qry_cmd2.append(ui->dateTimeFinish->dateTime().toString());
     qry_cmd2.append("'");
-    qry_cmd.append("select ID,Status,Count(*) as Count from LogRS232 where Time between '");
+    /**************************************/
+    qry_cmd.append("SELECT ID,sum(Disconnect) as Disconnect,sum(Startup) as Startup,sum(MissLog) as Misslog from err_log WHERE Time BETWEEN '");
     qry_cmd.append(ui->dateTimeBegin->dateTime().toString());
     qry_cmd.append("' and '");
     qry_cmd.append(ui->dateTimeFinish->dateTime().toString());
     qry_cmd.append("'");
+
+//    qry_cmd.append("select ID,Status,Count(*) as Count from LogRS232 where Time between '");
+//    qry_cmd.append(ui->dateTimeBegin->dateTime().toString());
+//    qry_cmd.append("' and '");
+//    qry_cmd.append(ui->dateTimeFinish->dateTime().toString());
+//    qry_cmd.append("'");
     if(ui->nozzleID->currentText() == "*"){
-        qry_cmd.append(" group by ID,Status");
+        qry_cmd.append(" group by ID");
+//        qry_cmd.append(" group by ID,Status");
     }else{
         qry_cmd.append(" and ID = ");
         qry_cmd.append(ui->nozzleID->currentText());
-        qry_cmd.append(" group by Status");
+//        qry_cmd.append(" and ID = ");
+//        qry_cmd.append(ui->nozzleID->currentText());
+//        qry_cmd.append(" group by Status");
         qry_cmd2.append(" and ID = ");
         qry_cmd2.append(ui->nozzleID->currentText());
     }
@@ -67,8 +79,8 @@ void Filter::on_pushQuery_clicked()
     model_1->select();
     ui->total->setModel(model_1);
     ui->total->verticalHeader()->setVisible(false);
-//    ui->total->resizeColumnsToContents();
-    ui->total->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+//    ui->total->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->total->resizeColumnsToContents();
     ui->total->show();
     query2.prepare(qry_cmd2);
     if (!query2.exec(qry_cmd2)) {
@@ -81,4 +93,4 @@ void Filter::on_pushQuery_clicked()
     ui->logAfterFilter->resizeColumnsToContents();
     ui->logAfterFilter->show();
 }
-
+//SELECT ID,sum(Disconnect),sum(Startup),sum(MissLog) from err_log WHERE Time BETWEEN 'Tue Nov 14 20:43:44 2023' AND 'Tue Nov 14 20:44:15 2023' GROUP BY ID

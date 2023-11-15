@@ -13,11 +13,17 @@
 #include <nozzlehelper.h>
 #include "filter.h"
 
+static bool s_ErrMissLog = false;
+static bool s_ErrDisconnect = false;
+static bool s_ErrStartup = false;
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->btnScada->setEnabled(false);
+    ui->pushQuery->setEnabled(false);
     loadPort();
     connect(&_port,&SerialPort::showDataReceived,this,&MainWindow::showDataReceived);
     connect(&_port,&SerialPort::insertDataToDb,this,&MainWindow::insertDataToDb);
@@ -43,6 +49,11 @@ void MainWindow::on_pushOpen_pressed()
     }else{
         QMessageBox::information(this,"Result","Port open");
         ui->pushOpen->setEnabled(false);
+        ui->portList->setEnabled(false);
+        ui->statusPort->setText("Opened");
+        ui->btnScada->setEnabled(true);
+        ui->pushQuery->setEnabled(true);
+        ui->statusPort->setStyleSheet("color: blue;");
         QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
         db.setDatabaseName("mydatabase.db");
         if (!db.open()) {
@@ -62,6 +73,7 @@ void MainWindow::on_pushOpen_pressed()
                        "UnitPriceIdle TEXT,"
                        "CostIdle TEXT,"
                        "Time DATETIME)");
+            query.exec("create table err_log (ID TEXT,MissLog TEXT,Disconnect TEXT,Startup TEXT,Time DATETIME)");
         }
         QSqlTableModel *model = new QSqlTableModel;
         model->setTable("LogRS232");
@@ -112,6 +124,42 @@ void MainWindow::insertDataToDb(NozzleMessage &data)
     if (!query.exec()) {
         qDebug() << "Insert failed:" << query.lastError();
     }
+    /*Insert table error begin*/
+    QString qry_cmd_table2 = "insert into err_log values(";
+    qry_cmd_table2.append(QString::number(_port.nozzleMsg.Id));
+    qry_cmd_table2.append(",");
+    switch (_port.nozzleMsg.Status){
+    case 0:
+        break;
+    case 1:
+        s_ErrMissLog = true;
+        break;
+    case 2:
+        s_ErrDisconnect = true;
+        break;
+    case 3:
+        s_ErrStartup = true;
+        break;
+    default:
+        break;
+    }
+    qry_cmd_table2.append(QString::number(s_ErrMissLog));
+    qry_cmd_table2.append(",");
+    qry_cmd_table2.append(QString::number(s_ErrDisconnect));
+    qry_cmd_table2.append(",");
+    qry_cmd_table2.append(QString::number(s_ErrStartup));
+    qry_cmd_table2.append(",");
+    qry_cmd_table2.append(":time)");
+    currentTime = QDateTime::currentDateTime();
+    query.prepare(qry_cmd_table2);
+    query.bindValue(":time", currentTime.toString());
+    if (!query.exec()) {
+        qDebug() << "Insert Err_log failed:" << query.lastError();
+    }
+    s_ErrMissLog = false;
+    s_ErrDisconnect = false;
+    s_ErrStartup = false;
+    /*Insert table error end*/
     model_1->setTable("LogRS232");
     model_1->setEditStrategy(QSqlTableModel::OnManualSubmit);
     model_1->select();

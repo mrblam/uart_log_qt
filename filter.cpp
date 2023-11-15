@@ -41,16 +41,16 @@ void Filter::on_pushQuery_clicked()
     QSqlQuery query2;
     QString qry_cmd2;
     QString qry_cmd;
-    qry_cmd2.append("SELECT * FROM LogRS232 where Time between '");
-    qry_cmd2.append(ui->dateTimeBegin->dateTime().toString());
+    qry_cmd2.append("SELECT * FROM LogRS232 where [Thời gian] between '");
+    qry_cmd2.append(ui->dateTimeBegin->dateTime().toString("dd/MM/yyyy hh:mm:ss"));
     qry_cmd2.append("' and '");
-    qry_cmd2.append(ui->dateTimeFinish->dateTime().toString());
+    qry_cmd2.append(ui->dateTimeFinish->dateTime().toString("dd/MM/yyyy hh:mm:ss"));
     qry_cmd2.append("'");
     /**************************************/
-    qry_cmd.append("SELECT ID,sum(Disconnect) as Disconnect,sum(Startup) as Startup,sum(MissLog) as Misslog from err_log WHERE Time BETWEEN '");
-    qry_cmd.append(ui->dateTimeBegin->dateTime().toString());
+    qry_cmd.append("SELECT ID,sum(Disconnect) as [Số lần mất kết nối] ,sum(Startup) as [Số lần khởi động],sum(MissLog) as [Số lần mất log] from err_log WHERE Time BETWEEN '");
+    qry_cmd.append(ui->dateTimeBegin->dateTime().toString("dd/MM/yyyy hh:mm:ss"));
     qry_cmd.append("' and '");
-    qry_cmd.append(ui->dateTimeFinish->dateTime().toString());
+    qry_cmd.append(ui->dateTimeFinish->dateTime().toString("dd/MM/yyyy hh:mm:ss"));
     qry_cmd.append("'");
 
 //    qry_cmd.append("select ID,Status,Count(*) as Count from LogRS232 where Time between '");

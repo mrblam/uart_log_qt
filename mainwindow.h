@@ -19,7 +19,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-
+    void closeEvent (QCloseEvent *event);
 private slots:
     void on_pushOpen_pressed();
 

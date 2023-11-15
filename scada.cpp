@@ -66,7 +66,7 @@ void Scada::updateNozzleData(NozzleMessage &data)
     QDateTime time_current = QDateTime::currentDateTime();
     id_nozzle = data.Id;
     status = data.Status;
-    nozzle_arr[id_nozzle].time = time_current.toString();
+    nozzle_arr[id_nozzle].time = time_current.toString("dd/MM/yyyy hh:mm:ss");
     switch (status) {
     case 0:
         nozzle_arr[id_nozzle].liter = data.liter_4.toLongLong();

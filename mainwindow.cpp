@@ -12,6 +12,7 @@
 #include <QString>
 #include <nozzlehelper.h>
 #include "filter.h"
+#include <QCloseEvent>
 
 static bool s_ErrMissLog = false;
 static bool s_ErrDisconnect = false;
@@ -61,19 +62,19 @@ void MainWindow::on_pushOpen_pressed()
         } else {
             qDebug() << QObject::tr("Database is open!");
             QSqlQuery query;
-            query.exec("create table LogRS232 (ID TEXT,"
-                       "Status TEXT,"
-                       "VolumeStart TEXT,"
-                       "UnitPriceStart TEXT,"
-                       "CostStart TEXT,"
-                       "VolumeStop TEXT,"
-                       "UnitPriceStop TEXT,"
-                       "CostStop TEXT,"
-                       "VolumeIdle TEXT,"
-                       "UnitPriceIdle TEXT,"
-                       "CostIdle TEXT,"
-                       "Time DATETIME)");
-            query.exec("create table err_log (ID TEXT,MissLog TEXT,Disconnect TEXT,Startup TEXT,Time DATETIME)");
+            query.exec("create table LogRS232 (Vòi INT,"
+                       "[Trạng thái] TEXT,"
+                       "[Lượng lít(bắt đầu)] TEXT,"
+                       "[Đơn giá(bắt đầu)] TEXT,"
+                       "[Thành tiền(bắt đầu)] TEXT,"
+                       "[Lượng lít(kết thúc)] TEXT,"
+                       "[Đơn giá(kết thúc)] TEXT,"
+                       "[Thành tiền(kết thúc)] TEXT,"
+                       "[Lượng lít(gác cò)] TEXT,"
+                       "[Đơn giá(gác cò)] TEXT,"
+                       "[Thành tiền(gác cò)] TEXT,"
+                       "[Thời gian] DATETIME)");
+            query.exec("create table err_log (ID INT,MissLog TEXT,Disconnect TEXT,Startup TEXT,Time DATETIME)");
         }
         QSqlTableModel *model = new QSqlTableModel;
         model->setTable("LogRS232");
@@ -119,7 +120,7 @@ void MainWindow::insertDataToDb(NozzleMessage &data)
     qry_cmd.append(":time)");
     currentTime = QDateTime::currentDateTime();
     query.prepare(qry_cmd);
-    query.bindValue(":time", currentTime.toString());
+    query.bindValue(":time", currentTime.toString("dd/MM/yyyy hh:mm:ss"));
     qDebug()<< qry_cmd;
     if (!query.exec()) {
         qDebug() << "Insert failed:" << query.lastError();
@@ -152,7 +153,7 @@ void MainWindow::insertDataToDb(NozzleMessage &data)
     qry_cmd_table2.append(":time)");
     currentTime = QDateTime::currentDateTime();
     query.prepare(qry_cmd_table2);
-    query.bindValue(":time", currentTime.toString());
+    query.bindValue(":time", currentTime.toString("dd/MM/yyyy hh:mm:ss"));
     if (!query.exec()) {
         qDebug() << "Insert Err_log failed:" << query.lastError();
     }
@@ -164,6 +165,7 @@ void MainWindow::insertDataToDb(NozzleMessage &data)
     model_1->setEditStrategy(QSqlTableModel::OnManualSubmit);
     model_1->select();
     ui->tableViewDb->setModel(model_1);
+    ui->tableViewDb->resizeColumnsToContents();
     ui->tableViewDb->show();
 }
 void MainWindow::on_btnSend_clicked()
@@ -186,4 +188,18 @@ void MainWindow::on_pushQuery_clicked()
 {
     Filter *Filter_window = Filter::getFilter();
     Filter_window->showMaximized();
+}
+
+void MainWindow::closeEvent (QCloseEvent *event)
+{
+    QMessageBox::StandardButton resBtn = QMessageBox::question( this, "Peco Log",
+                                                               tr("Are you sure?\n"),
+                                                               QMessageBox::Cancel | QMessageBox::No | QMessageBox::Yes,
+                                                               QMessageBox::Yes);
+    if (resBtn != QMessageBox::Yes) {
+        event->ignore();
+    } else {
+        QApplication::closeAllWindows();
+        event->accept();
+    }
 }

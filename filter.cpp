@@ -47,7 +47,7 @@ void Filter::on_pushQuery_clicked()
     qry_cmd2.append(ui->dateTimeFinish->dateTime().toString("dd/MM/yyyy hh:mm:ss"));
     qry_cmd2.append("'");
     /**************************************/
-    qry_cmd.append("SELECT ID,sum(Disconnect) as [Số lần mất kết nối] ,sum(Startup) as [Số lần khởi động],sum(MissLog) as [Số lần mất log] from err_log WHERE Time BETWEEN '");
+    qry_cmd.append("SELECT ID,sum(Disconnect) as [Số lần mất \nkết nối] ,sum(Startup) as [Số lần \nkhởi động],sum(MissLog) as [Số lần \nmất log] from err_log WHERE Time BETWEEN '");
     qry_cmd.append(ui->dateTimeBegin->dateTime().toString("dd/MM/yyyy hh:mm:ss"));
     qry_cmd.append("' and '");
     qry_cmd.append(ui->dateTimeFinish->dateTime().toString("dd/MM/yyyy hh:mm:ss"));
@@ -67,7 +67,7 @@ void Filter::on_pushQuery_clicked()
 //        qry_cmd.append(" and ID = ");
 //        qry_cmd.append(ui->nozzleID->currentText());
 //        qry_cmd.append(" group by Status");
-        qry_cmd2.append(" and ID = ");
+        qry_cmd2.append(" and Vòi = ");
         qry_cmd2.append(ui->nozzleID->currentText());
     }
     query1.prepare(qry_cmd);
@@ -79,8 +79,8 @@ void Filter::on_pushQuery_clicked()
     model_1->select();
     ui->total->setModel(model_1);
     ui->total->verticalHeader()->setVisible(false);
-//    ui->total->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    ui->total->resizeColumnsToContents();
+    ui->total->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+//    ui->total->resizeColumnsToContents();
     ui->total->show();
     query2.prepare(qry_cmd2);
     if (!query2.exec(qry_cmd2)) {

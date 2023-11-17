@@ -65,25 +65,27 @@ void Scada::updateNozzleData(NozzleMessage &data)
     uint8_t status = 0;
     QDateTime time_current = QDateTime::currentDateTime();
     id_nozzle = data.Id;
-    status = data.Status;
-    nozzle_arr[id_nozzle].time = time_current.toString("dd/MM/yyyy hh:mm:ss");
-    switch (status) {
-    case 0:
-        nozzle_arr[id_nozzle].liter = data.liter_4.toLongLong();
-        nozzle_arr[id_nozzle].unitPrice = data.unitPrice_4.toLongLong();
-        nozzle_arr[id_nozzle].totalMoney = data.money_4.toLongLong();
-        break;
-    case 1:
-        nozzle_arr[id_nozzle].lostLog++;
-        break;
-    case 2:
-        nozzle_arr[id_nozzle].disconnect++;
-        break;
-    case 3:
-        nozzle_arr[id_nozzle].shutdown++;
-        break;
-    default:
-        break;
+    if(id_nozzle < NOZZLE_NUM && id_nozzle >= 0){
+        status = data.Status;
+        nozzle_arr[id_nozzle].time = time_current.toString("dd/MM/yyyy hh:mm:ss");
+        switch (status) {
+        case 0:
+            nozzle_arr[id_nozzle].liter = data.liter_4.toLongLong();
+            nozzle_arr[id_nozzle].unitPrice = data.unitPrice_4.toLongLong();
+            nozzle_arr[id_nozzle].totalMoney = data.money_4.toLongLong();
+            break;
+        case 1:
+            nozzle_arr[id_nozzle].lostLog++;
+            break;
+        case 2:
+            nozzle_arr[id_nozzle].disconnect++;
+            break;
+        case 3:
+            nozzle_arr[id_nozzle].shutdown++;
+            break;
+        default:
+            break;
+        }
     }
 }
 

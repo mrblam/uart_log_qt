@@ -19,6 +19,12 @@ typedef struct NozzleData{
     uint8_t unitPrice[6];
     uint8_t totalMoney[8];
 }NozzleData;
+typedef enum Status{
+    NORMAL,
+    MISSLOG,
+    DISCONNECT,
+    STARTUP
+} Status;
 typedef struct NozzleMessage{
     uint8_t Id;
     uint8_t Status;

@@ -28,17 +28,21 @@ typedef enum Status{
 typedef struct NozzleMessage{
     uint8_t Id;
     uint8_t Status;
-    QByteArray liter_1;
-    QByteArray unitPrice_1;
-    QByteArray money_1;
-    QByteArray liter_2;
-    QByteArray unitPrice_2;
-    QByteArray money_2;
-    QByteArray liter_3;
-    QByteArray unitPrice_3;
-    QByteArray money_3;
-    QByteArray liter_4;
-    QByteArray unitPrice_4;
-    QByteArray money_4;
+
+    QByteArray liter_now;
+    QByteArray unitPrice_now;
+    QByteArray money_now;
+
+    QByteArray liter_begin;
+    QByteArray unitPrice_begin;
+    QByteArray money_begin;
+
+    QByteArray liter_finish;
+    QByteArray unitPrice_finish;
+    QByteArray money_finish;
+
+    QByteArray liter_idle;
+    QByteArray unitPrice_idle;
+    QByteArray money_idle;
 }NozzleMessage;
 #endif // NOZZLEHELPER_H

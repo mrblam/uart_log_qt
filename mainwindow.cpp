@@ -29,6 +29,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&_port,&SerialPort::showDataReceived,this,&MainWindow::showDataReceived);
     connect(&_port,&SerialPort::insertDataToDb,this,&MainWindow::insertDataToDb);
     connect(&_port,&SerialPort::updateNozzleData,Scada::getScada(),&Scada::updateNozzleData);
+    connect(&_port,&SerialPort::disconnectToMCU,Scada::getScada(),&Scada::setDisconnectToMCU);
     this->setWindowTitle("Peco Log");
 }
 MainWindow::~MainWindow()
@@ -70,9 +71,9 @@ void MainWindow::on_pushOpen_pressed()
                        "[Lượng lít(kết thúc)] TEXT,"
                        "[Đơn giá(kết thúc)] TEXT,"
                        "[Thành tiền(kết thúc)] TEXT,"
-                       "[Lượng lít(gác cò)] TEXT,"
-                       "[Đơn giá(gác cò)] TEXT,"
-                       "[Thành tiền(gác cò)] TEXT,"
+//                       "[Lượng lít(gác cò)] TEXT,"
+//                       "[Đơn giá(gác cò)] TEXT,"
+//                       "[Thành tiền(gác cò)] TEXT,"
                        "[Thời gian] DATETIME)");
             query.exec("create table err_log (ID INT,MissLog TEXT,Disconnect TEXT,Startup TEXT,Time DATETIME)");
         }
@@ -99,23 +100,23 @@ void MainWindow::insertDataToDb(NozzleMessage &data)
     qry_cmd.append(",");
     qry_cmd.append(QString::number(_port.nozzleMsg.Status));
     qry_cmd.append(",");
-    qry_cmd.append(_port.nozzleMsg.liter_2);
+    qry_cmd.append(_port.nozzleMsg.liter_begin);
     qry_cmd.append(",");
-    qry_cmd.append(_port.nozzleMsg.unitPrice_2);
+    qry_cmd.append(_port.nozzleMsg.unitPrice_begin);
     qry_cmd.append(",");
-    qry_cmd.append(_port.nozzleMsg.money_2);
+    qry_cmd.append(_port.nozzleMsg.money_begin);
     qry_cmd.append(",");
-    qry_cmd.append(_port.nozzleMsg.liter_3);
+    qry_cmd.append(_port.nozzleMsg.liter_finish);
     qry_cmd.append(",");
-    qry_cmd.append(_port.nozzleMsg.unitPrice_3);
+    qry_cmd.append(_port.nozzleMsg.unitPrice_finish);
     qry_cmd.append(",");
-    qry_cmd.append(_port.nozzleMsg.money_3);
-    qry_cmd.append(",");
-    qry_cmd.append(_port.nozzleMsg.liter_4);
-    qry_cmd.append(",");
-    qry_cmd.append(_port.nozzleMsg.unitPrice_4);
-    qry_cmd.append(",");
-    qry_cmd.append(_port.nozzleMsg.money_4);
+    qry_cmd.append(_port.nozzleMsg.money_finish);
+//    qry_cmd.append(",");
+//    qry_cmd.append(_port.nozzleMsg.liter_idle);
+//    qry_cmd.append(",");
+//    qry_cmd.append(_port.nozzleMsg.unitPrice_idle);
+//    qry_cmd.append(",");
+//    qry_cmd.append(_port.nozzleMsg.money_idle);
     qry_cmd.append(",");
     qry_cmd.append(":time)");
     currentTime = QDateTime::currentDateTime();

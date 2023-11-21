@@ -9,6 +9,7 @@
 #define STX                         0X02
 #define ETX                         0x03
 #define POLLING_RXBUFFER_mS         200
+#define TIMEOUT_TO_RECEIVE_DATA     50//50*200ms = 10s
 typedef enum COM_STATE{
     COM_STATE_IDLE = 0,
     COM_STATE_RECEIVE_DATA_LEN = 1,
@@ -24,11 +25,12 @@ public:
     bool connectPort(QString portName);
     qint64 writeSerialPort(QByteArray data);
     void receiveData(const QByteArray &new_data);
-    uint8_t getRxDataPack();
+    int8_t getRxDataPack();
 signals:
     void insertDataToDb(NozzleMessage &data);
     void showDataReceived(QByteArray data);
     void updateNozzleData(NozzleMessage &data);
+    void disconnectToMCU();
 private:
     QSerialPort *serialPort = nullptr;
     QByteArray rxBuffer;
@@ -39,7 +41,8 @@ private:
     COM_STATE com_state;
     uint8_t   data_len_index = 0;
     QTimer pollingDataReceived;
-    uint8_t pack_found;
+    int8_t pack_found;
+    uint64_t timeoutSetDisconnect;
 
 private slots:
     void dataReady();

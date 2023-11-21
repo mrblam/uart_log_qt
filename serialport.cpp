@@ -3,7 +3,7 @@
 
 static uint8_t checksumXOR(uint8_t *pu8Buffer, uint32_t u32Offset, uint32_t u32Length);
 static QByteArray convertDataReceived(QByteArray &datau,uint8_t len);
-SerialPort::SerialPort()
+SerialPort::SerialPort():pack_found(0)
 {
 
 }
@@ -44,7 +44,7 @@ void SerialPort::receiveData(const QByteArray &new_data)
     emit showDataReceived(new_data); ///show all data receive on terminal
     rxBuffer.append(new_data);
 }
-uint8_t SerialPort::getRxDataPack()
+int8_t SerialPort::getRxDataPack()
 {
     if(rxBuffer.length()<=0) return (-1);
     int32_t start=rxBuffer.indexOf(STX);
@@ -55,7 +55,7 @@ uint8_t SerialPort::getRxDataPack()
         rxBuffer.remove(0,start-1);
         return (-1);
     }
-    uint8_t msg_type = finish-start;
+    int8_t msg_type = finish-start;
     packReady=rxBuffer.mid(start+1,finish-start-1);
     qDebug()<< "packready --> " + packReady.toHex();
     packReady = convertDataReceived(packReady,finish-start-1);
@@ -65,6 +65,7 @@ uint8_t SerialPort::getRxDataPack()
 }
 void SerialPort::dataReady()
 {
+    timeoutSetDisconnect = 0;
     if(serialPort->bytesAvailable() > 0){
         receiveData(serialPort->readAll());
     }
@@ -76,43 +77,48 @@ void SerialPort::timeOut()
 }
 void SerialPort::processReceivedData()
 {
-    pack_found=getRxDataPack();//polling
+    timeoutSetDisconnect ++;
+    if(timeoutSetDisconnect > TIMEOUT_TO_RECEIVE_DATA){
+        emit disconnectToMCU();
+        timeoutSetDisconnect = 0;
+    }
+    pack_found=getRxDataPack();//polling 200ms
     if(pack_found<=0) return;
 
     switch (pack_found) {
     case 4:
-        nozzleMsg.Id            = packReady[0];
-        nozzleMsg.Status        = packReady[1];
-        nozzleMsg.liter_1       = "0x00";
-        nozzleMsg.unitPrice_1   = "0x00";
-        nozzleMsg.money_1       = "0x00";
-        nozzleMsg.liter_2       = "0x00";
-        nozzleMsg.unitPrice_2   = "0x00";
-        nozzleMsg.money_2       = "0x00";
-        nozzleMsg.liter_3       = "0x00";
-        nozzleMsg.unitPrice_3   = "0x00";
-        nozzleMsg.money_3       = "0x00";
-        nozzleMsg.liter_4       = "0x00";
-        nozzleMsg.unitPrice_4   = "0x00";
-        nozzleMsg.money_4       = "0x00";
+        nozzleMsg.Id                = packReady[0];
+        nozzleMsg.Status            = packReady[1];
+        nozzleMsg.liter_now         = "0x00";
+        nozzleMsg.unitPrice_now     = "0x00";
+        nozzleMsg.money_now         = "0x00";
+        nozzleMsg.liter_begin       = "0x00";
+        nozzleMsg.unitPrice_begin   = "0x00";
+        nozzleMsg.money_begin       = "0x00";
+        nozzleMsg.liter_finish      = "0x00";
+        nozzleMsg.unitPrice_finish  = "0x00";
+        nozzleMsg.money_finish      = "0x00";
+        nozzleMsg.liter_idle        = "0x00";
+        nozzleMsg.unitPrice_idle    = "0x00";
+        nozzleMsg.money_idle        = "0x00";
         emit updateNozzleData(nozzleMsg);
         emit insertDataToDb(nozzleMsg);
         break;
     case 92:
-        nozzleMsg.Id            = packReady[0];
-        nozzleMsg.Status        = packReady[1];
-        nozzleMsg.liter_1       = packReady.mid(2,8);
-        nozzleMsg.unitPrice_1   = packReady.mid(10,6);
-        nozzleMsg.money_1       = packReady.mid(16,8);
-        nozzleMsg.liter_2       = packReady.mid(24,8);
-        nozzleMsg.unitPrice_2   = packReady.mid(32,6);
-        nozzleMsg.money_2       = packReady.mid(38,8);
-        nozzleMsg.liter_3       = packReady.mid(46,8);
-        nozzleMsg.unitPrice_3   = packReady.mid(54,6);
-        nozzleMsg.money_3       = packReady.mid(60,8);
-        nozzleMsg.liter_4       = packReady.mid(68,8);
-        nozzleMsg.unitPrice_4   = packReady.mid(76,6);
-        nozzleMsg.money_4       = packReady.mid(82,8);
+        nozzleMsg.Id                = packReady[0];
+        nozzleMsg.Status            = packReady[1];
+        nozzleMsg.liter_begin       = packReady.mid(2,8);
+        nozzleMsg.unitPrice_begin   = packReady.mid(10,6);
+        nozzleMsg.money_begin       = packReady.mid(16,8);
+        nozzleMsg.liter_finish      = packReady.mid(24,8);
+        nozzleMsg.unitPrice_finish  = packReady.mid(32,6);
+        nozzleMsg.money_finish      = packReady.mid(38,8);
+        nozzleMsg.liter_idle        = packReady.mid(46,8);
+        nozzleMsg.unitPrice_idle    = packReady.mid(54,6);
+        nozzleMsg.money_idle        = packReady.mid(60,8);
+        nozzleMsg.liter_now         = packReady.mid(68,8);
+        nozzleMsg.unitPrice_now     = packReady.mid(76,6);
+        nozzleMsg.money_now         = packReady.mid(82,8);
         emit updateNozzleData(nozzleMsg);
         emit insertDataToDb(nozzleMsg);
         break;

@@ -70,9 +70,9 @@ void Scada::updateNozzleData(NozzleMessage &data)
         nozzle_arr[id_nozzle].time = time_current.toString("dd/MM/yyyy hh:mm:ss");
         switch (status) {
         case 0:
-            nozzle_arr[id_nozzle].liter = data.liter_4.toLongLong();
-            nozzle_arr[id_nozzle].unitPrice = data.unitPrice_4.toLongLong();
-            nozzle_arr[id_nozzle].totalMoney = data.money_4.toLongLong();
+            nozzle_arr[id_nozzle].liter = data.liter_idle.toLongLong();
+            nozzle_arr[id_nozzle].unitPrice = data.unitPrice_idle.toLongLong();
+            nozzle_arr[id_nozzle].totalMoney = data.money_idle.toLongLong();
             break;
         case 1:
             nozzle_arr[id_nozzle].lostLog++;
@@ -87,6 +87,14 @@ void Scada::updateNozzleData(NozzleMessage &data)
             break;
         }
     }
+    ui->statusConnect->setText("Connected");
+    ui->statusConnect->setStyleSheet("font-weight: bold; color: blue;");
+}
+
+void Scada::setDisconnectToMCU()
+{
+    ui->statusConnect->setText("Disconnect to MCU (Timeout)");
+    ui->statusConnect->setStyleSheet("font-weight: bold; color: red;");
 }
 
 

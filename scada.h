@@ -23,6 +23,7 @@ public:
     static Scada* getScada();
 public slots:
     void updateNozzleData(NozzleMessage &data);
+    void setDisconnectToMCU();
 private:
     Ui::Scada *ui;
     QStandardItemModel *model;

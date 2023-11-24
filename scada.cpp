@@ -10,6 +10,7 @@ Scada::Scada(QWidget *parent) :
 {
     ui->setupUi(this);
     this->setWindowTitle("SCADA");
+    this->setWindowIcon(QIcon(":/UI/Icon/p.ico"));
     connect(&heartbeatTicker,&QTimer::timeout,this,&Scada::updateScada);
     heartbeatTicker.start(500);
     QStringList horzHeaders;
@@ -93,7 +94,7 @@ void Scada::updateNozzleData(NozzleMessage &data)
 
 void Scada::setDisconnectToMCU()
 {
-    ui->statusConnect->setText("Disconnect to MCU (Timeout)");
+    ui->statusConnect->setText("Disconnect from MCU (Timeout)");
     ui->statusConnect->setStyleSheet("font-weight: bold; color: red;");
 }
 

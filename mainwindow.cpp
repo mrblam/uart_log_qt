@@ -31,6 +31,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&_port,&SerialPort::updateNozzleData,Scada::getScada(),&Scada::updateNozzleData);
     connect(&_port,&SerialPort::disconnectToMCU,Scada::getScada(),&Scada::setDisconnectToMCU);
     this->setWindowTitle("Peco Log");
+    this->setWindowIcon(QIcon(":/UI/Icon/p.ico"));
 }
 MainWindow::~MainWindow()
 {
@@ -183,7 +184,8 @@ void MainWindow::on_btnScada_clicked()
 }
 void MainWindow::showDataReceived(QByteArray data)
 {
-    ui->listMessage->addItem(QString (data.toHex()));
+//    ui->listMessage->addItem(QString (data.toHex()));//qlistwidget
+    ui->plainTextEdit->insertPlainText(data.toHex());
 }
 void MainWindow::on_pushQuery_clicked()
 {

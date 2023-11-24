@@ -6,6 +6,9 @@
 #define NOZZLE_NUM      40
 
 typedef struct nozzle{
+    QString name;
+    uint8_t id485;
+    uint8_t no;
     uint64_t unitPrice;
     uint64_t liter;
     uint64_t totalMoney;

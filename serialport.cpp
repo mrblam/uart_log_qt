@@ -2,7 +2,7 @@
 #include <QDebug>
 
 static uint8_t checksumXOR(uint8_t *pu8Buffer, uint32_t u32Offset, uint32_t u32Length);
-static QByteArray convertDataReceived(QByteArray &datau,uint8_t len);
+static QByteArray convertDataReceived(QByteArray &data,uint8_t len);
 SerialPort::SerialPort():pack_found(0)
 {
 

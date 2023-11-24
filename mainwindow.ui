@@ -14,9 +14,9 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout">
+   <layout class="QGridLayout" name="gridLayout" columnstretch="0">
     <item row="0" column="0">
-     <layout class="QVBoxLayout" name="verticalLayout_4">
+     <layout class="QVBoxLayout" name="verticalLayout_4" stretch="1,2">
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
@@ -149,14 +149,7 @@
            </layout>
           </item>
           <item>
-           <widget class="QListWidget" name="listMessage">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-           </widget>
+           <widget class="QPlainTextEdit" name="plainTextEdit"/>
           </item>
          </layout>
         </item>

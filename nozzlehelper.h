@@ -17,6 +17,7 @@ typedef struct nozzle{
     uint64_t shutdown = 0;
     QString time;
 }nozzle;
+typedef nozzle nozzle2D[20][4];
 typedef struct NozzleData{
     uint8_t liter[8];
     uint8_t unitPrice[6];
@@ -30,6 +31,7 @@ typedef enum Status{
 } Status;
 typedef struct NozzleMessage{
     uint8_t Id;
+    uint8_t No;
     uint8_t Status;
 
     QByteArray liter_now;

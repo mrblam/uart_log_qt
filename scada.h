@@ -7,7 +7,6 @@
 #include <nozzlehelper.h>
 #include <QTimer>
 
-
 namespace Ui {
 class Scada;
 }
@@ -21,6 +20,7 @@ public:
     ~Scada();
     void updateScada();
     static Scada* getScada();
+    nozzle2D* getNozzle();
 public slots:
     void updateNozzleData(NozzleMessage &data);
     void setDisconnectToMCU();

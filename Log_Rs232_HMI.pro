@@ -14,6 +14,7 @@ SOURCES += \
     logrecord.cpp \
     main.cpp \
     mainwindow.cpp \
+    nozzle.cpp \
     scada.cpp \
     serialport.cpp
 
@@ -22,6 +23,7 @@ HEADERS += \
     localdb.h \
     logrecord.h \
     mainwindow.h \
+    nozzle.h \
     nozzlehelper.h \
     scada.h \
     serialport.h

@@ -6,7 +6,7 @@
 #include <QSerialPort>
 #include <QSerialPortInfo>
 #include "serialport.h"
-
+#include "nozzle.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -36,6 +36,7 @@ private:
     Ui::MainWindow *ui;
     SerialPort _port;
     bool loadPort();
+    Nozzle *nozzlePtr;
 //    LogRecord record;
 signals:
     void prepareData();

@@ -2,7 +2,7 @@
 #include "ui_scada.h"
 #include "nozzlehelper.h"
 
-static nozzle nozzle_arr[NOZZLE_NUM];
+static nozzle nozzle_arr[20][4];
 
 Scada::Scada(QWidget *parent) :
     QWidget(parent),
@@ -28,9 +28,6 @@ Scada::Scada(QWidget *parent) :
     ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tableWidget->verticalHeader()->setVisible(false);
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    for (int i = 0;i < NOZZLE_NUM;i++){
-        ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 0),i,Qt::EditRole);
-    }
 }
 
 Scada::~Scada()
@@ -40,14 +37,17 @@ Scada::~Scada()
 
 void Scada::updateScada()
 {
-    for(int i = 0;i < NOZZLE_NUM;i++){
-        ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 1),nozzle_arr[i].time,Qt::EditRole);
-        ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 2),nozzle_arr[i].disconnect,Qt::EditRole);
-        ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 3),nozzle_arr[i].lostLog,Qt::EditRole);
-        ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 4),nozzle_arr[i].shutdown,Qt::EditRole);
-        ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 5),nozzle_arr[i].totalMoney,Qt::EditRole);
-        ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 6),nozzle_arr[i].liter,Qt::EditRole);
-        ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 7),nozzle_arr[i].unitPrice,Qt::EditRole);
+    for(int i = 0;i < 20;i++){
+        for(int j = 0;j < 4; j++){
+            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i*4+j, 0),nozzle_arr[i][j].name,Qt::EditRole);
+            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i*4+j, 1),nozzle_arr[i][j].time,Qt::EditRole);
+            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i*4+j, 2),nozzle_arr[i][j].disconnect,Qt::EditRole);
+            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i*4+j, 3),nozzle_arr[i][j].lostLog,Qt::EditRole);
+            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i*4+j, 4),nozzle_arr[i][j].shutdown,Qt::EditRole);
+            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i*4+j, 5),nozzle_arr[i][j].totalMoney,Qt::EditRole);
+            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i*4+j, 6),nozzle_arr[i][j].liter,Qt::EditRole);
+            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i*4+j, 7),nozzle_arr[i][j].unitPrice,Qt::EditRole);
+        }
     }
 }
 
@@ -60,29 +60,36 @@ Scada *Scada::getScada()
     return self;
 }
 
+nozzle2D *Scada::getNozzle()
+{
+    return &nozzle_arr;
+}
+
 void Scada::updateNozzleData(NozzleMessage &data)
 {
-    uint8_t id_nozzle = 0;
+    uint8_t id485 = 0;
+    uint8_t no;
     uint8_t status = 0;
     QDateTime time_current = QDateTime::currentDateTime();
-    id_nozzle = data.Id;
-    if(id_nozzle < NOZZLE_NUM && id_nozzle >= 0){
+    id485 = data.Id;
+    no = data.No;
+    if(id485 < NOZZLE_NUM && id485 >= 0){
         status = data.Status;
-        nozzle_arr[id_nozzle].time = time_current.toString("dd/MM/yyyy hh:mm:ss");
+        nozzle_arr[id485][no].time = time_current.toString("dd/MM/yyyy hh:mm:ss");
         switch (status) {
         case 0:
-            nozzle_arr[id_nozzle].liter = data.liter_idle.toLongLong();
-            nozzle_arr[id_nozzle].unitPrice = data.unitPrice_idle.toLongLong();
-            nozzle_arr[id_nozzle].totalMoney = data.money_idle.toLongLong();
+            nozzle_arr[id485][no].liter = data.liter_idle.toLongLong();
+            nozzle_arr[id485][no].unitPrice = data.unitPrice_idle.toLongLong();
+            nozzle_arr[id485][no].totalMoney = data.money_idle.toLongLong();
             break;
         case 1:
-            nozzle_arr[id_nozzle].lostLog++;
+            nozzle_arr[id485][no].lostLog++;
             break;
         case 2:
-            nozzle_arr[id_nozzle].disconnect++;
+            nozzle_arr[id485][no].disconnect++;
             break;
         case 3:
-            nozzle_arr[id_nozzle].shutdown++;
+            nozzle_arr[id485][no].shutdown++;
             break;
         default:
             break;

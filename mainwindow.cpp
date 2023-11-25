@@ -32,6 +32,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&_port,&SerialPort::disconnectToMCU,Scada::getScada(),&Scada::setDisconnectToMCU);
     this->setWindowTitle("Peco Log");
     this->setWindowIcon(QIcon(":/UI/Icon/p.ico"));
+    static Nozzle nozzleArr[32];
+    nozzlePtr = nozzleArr;
 }
 MainWindow::~MainWindow()
 {
@@ -64,7 +66,9 @@ void MainWindow::on_pushOpen_pressed()
         } else {
             qDebug() << QObject::tr("Database is open!");
             QSqlQuery query;
-            query.exec("create table LogRS232 (Vòi INT,"
+            query.exec("create table LogRS232 (Vòi TEXT,"
+                       "Id485 INT"
+                       "No INT"
                        "[Trạng thái] TEXT,"
                        "[Lượng lít(bắt đầu)] TEXT,"
                        "[Đơn giá(bắt đầu)] TEXT,"
@@ -72,9 +76,6 @@ void MainWindow::on_pushOpen_pressed()
                        "[Lượng lít(kết thúc)] TEXT,"
                        "[Đơn giá(kết thúc)] TEXT,"
                        "[Thành tiền(kết thúc)] TEXT,"
-//                       "[Lượng lít(gác cò)] TEXT,"
-//                       "[Đơn giá(gác cò)] TEXT,"
-//                       "[Thành tiền(gác cò)] TEXT,"
                        "[Thời gian] DATETIME)");
             query.exec("create table err_log (ID INT,MissLog TEXT,Disconnect TEXT,Startup TEXT,Time DATETIME)");
         }
@@ -97,7 +98,15 @@ void MainWindow::insertDataToDb(NozzleMessage &data)
     QDateTime currentTime;
     QString qry_cmd = "insert into LogRS232 values(";
     QSqlQuery query;
+    Nozzle *nozzleTarget = nozzlePtr->findNozzle(nozzlePtr,_port.nozzleMsg.Id,_port.nozzleMsg.No);
+    /**/
+//    nozzleTarget.
+    /**/
+    qry_cmd.append(nozzleTarget->getName());
+    qry_cmd.append(",");
     qry_cmd.append(QString::number(_port.nozzleMsg.Id));
+    qry_cmd.append(",");
+    qry_cmd.append(QString::number(_port.nozzleMsg.No));
     qry_cmd.append(",");
     qry_cmd.append(QString::number(_port.nozzleMsg.Status));
     qry_cmd.append(",");
@@ -184,7 +193,6 @@ void MainWindow::on_btnScada_clicked()
 }
 void MainWindow::showDataReceived(QByteArray data)
 {
-//    ui->listMessage->addItem(QString (data.toHex()));//qlistwidget
     ui->plainTextEdit->insertPlainText(data.toHex());
 }
 void MainWindow::on_pushQuery_clicked()

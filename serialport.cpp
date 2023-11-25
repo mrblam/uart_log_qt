@@ -88,6 +88,7 @@ void SerialPort::processReceivedData()
     switch (pack_found) {
     case 4:
         nozzleMsg.Id                = packReady[0];
+        nozzleMsg.No                = 0xFF;
         nozzleMsg.Status            = packReady[1];
         nozzleMsg.liter_now         = "0x00";
         nozzleMsg.unitPrice_now     = "0x00";
@@ -104,23 +105,24 @@ void SerialPort::processReceivedData()
         emit updateNozzleData(nozzleMsg);
         emit insertDataToDb(nozzleMsg);
         break;
-    case 92:
+    case 93:
         nozzleMsg.Id                = packReady[0];
-        nozzleMsg.Status            = packReady[1];
-        nozzleMsg.liter_begin       = packReady.mid(2,8);
-        nozzleMsg.unitPrice_begin   = packReady.mid(10,6);
-        nozzleMsg.money_begin       = packReady.mid(16,8);
-        nozzleMsg.liter_finish      = packReady.mid(24,8);
-        nozzleMsg.unitPrice_finish  = packReady.mid(32,6);
-        nozzleMsg.money_finish      = packReady.mid(38,8);
-        nozzleMsg.liter_idle        = packReady.mid(46,8);
-        nozzleMsg.unitPrice_idle    = packReady.mid(54,6);
-        nozzleMsg.money_idle        = packReady.mid(60,8);
-        nozzleMsg.liter_now         = packReady.mid(68,8);
-        nozzleMsg.unitPrice_now     = packReady.mid(76,6);
-        nozzleMsg.money_now         = packReady.mid(82,8);
-        emit updateNozzleData(nozzleMsg);
-        emit insertDataToDb(nozzleMsg);
+        nozzleMsg.No                = packReady[1];
+        nozzleMsg.Status            = packReady[2];
+        nozzleMsg.liter_begin       = packReady.mid(3,8);
+        nozzleMsg.unitPrice_begin   = packReady.mid(11,6);
+        nozzleMsg.money_begin       = packReady.mid(17,8);
+        nozzleMsg.liter_finish      = packReady.mid(25,8);
+        nozzleMsg.unitPrice_finish  = packReady.mid(33,6);
+        nozzleMsg.money_finish      = packReady.mid(39,8);
+        nozzleMsg.liter_idle        = packReady.mid(47,8);
+        nozzleMsg.unitPrice_idle    = packReady.mid(55,6);
+        nozzleMsg.money_idle        = packReady.mid(61,8);
+        nozzleMsg.liter_now         = packReady.mid(69,8);
+        nozzleMsg.unitPrice_now     = packReady.mid(77,6);
+        nozzleMsg.money_now         = packReady.mid(83,8);
+        emit updateNozzleData(nozzleMsg); //SCADA
+        emit insertDataToDb(nozzleMsg); //mainWindow
         break;
     default:
         return;

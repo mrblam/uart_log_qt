@@ -23,13 +23,19 @@ public:
     void setId485(uint8_t id);
     void setNo(uint8_t no);
     void setUnitPrice(uint64_t data);
+    void setTime(QString data);
+    void setLiter(uint64_t data);
+    void setTotalMoney(uint64_t data);
+    void setDisconnect();
+    void setLostLog();
+    void setShutdown();
 private:
     QString name;
     uint8_t id485;
     uint8_t no;
-    uint64_t unitPrice;
-    uint64_t liter;
-    uint64_t totalMoney;
+    uint64_t unitPrice = 0;
+    uint64_t liter = 0;
+    uint64_t totalMoney = 0;
     uint64_t disconnect = 0;
     uint64_t lostLog = 0;
     uint64_t shutdown = 0;

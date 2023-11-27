@@ -20,17 +20,24 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     void closeEvent (QCloseEvent *event);
+    uint8_t nozzleNum;
+    Nozzle nozzleArr[32];
 private slots:
     void on_pushOpen_pressed();
 
-    void insertDataToDb(NozzleMessage &data);
+    void handleMsgType1(NozzleMessage &data);
 
+    void handleMsgType2(NozzleMessage &data);
     void on_btnSend_clicked();
 
     void on_btnScada_clicked();
 
     void showDataReceived(QByteArray data);
     void on_pushQuery_clicked();
+
+    void on_assignNozzle_clicked();
+
+    void on_assignFinish_clicked();
 
 private:
     Ui::MainWindow *ui;

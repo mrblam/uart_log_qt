@@ -4,7 +4,7 @@
 #include <QDateTime>
 
 #define NOZZLE_NUM      40
-
+#define MIN_ID485          0
 typedef struct nozzle{
     QString name;
     uint8_t id485;

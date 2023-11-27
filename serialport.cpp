@@ -103,7 +103,7 @@ void SerialPort::processReceivedData()
         nozzleMsg.unitPrice_idle    = "0x00";
         nozzleMsg.money_idle        = "0x00";
         emit updateNozzleData(nozzleMsg);
-        emit insertDataToDb(nozzleMsg);
+        emit handleMsgType2(nozzleMsg);
         break;
     case 93:
         nozzleMsg.Id                = packReady[0];
@@ -122,7 +122,7 @@ void SerialPort::processReceivedData()
         nozzleMsg.unitPrice_now     = packReady.mid(77,6);
         nozzleMsg.money_now         = packReady.mid(83,8);
         emit updateNozzleData(nozzleMsg); //SCADA
-        emit insertDataToDb(nozzleMsg); //mainWindow
+        emit handleMsgType1(nozzleMsg); //mainWindow
         break;
     default:
         return;

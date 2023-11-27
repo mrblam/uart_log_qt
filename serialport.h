@@ -27,7 +27,8 @@ public:
     void receiveData(const QByteArray &new_data);
     int8_t getRxDataPack();
 signals:
-    void insertDataToDb(NozzleMessage &data);
+    void handleMsgType1(NozzleMessage &data);
+    void handleMsgType2(NozzleMessage &data);
     void showDataReceived(QByteArray data);
     void updateNozzleData(NozzleMessage &data);
     void disconnectToMCU();

@@ -2,19 +2,20 @@
 #include "ui_scada.h"
 #include "nozzlehelper.h"
 
-static nozzle nozzle_arr[20][4];
+//static nozzle nozzle_arr[20][4];
 
 Scada::Scada(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::Scada)
 {
     ui->setupUi(this);
+    nozzlePtr = nullptr;
     this->setWindowTitle("SCADA");
     this->setWindowIcon(QIcon(":/UI/Icon/p.ico"));
     connect(&heartbeatTicker,&QTimer::timeout,this,&Scada::updateScada);
     heartbeatTicker.start(500);
     QStringList horzHeaders;
-    ui->tableWidget->setRowCount(NOZZLE_NUM);
+    ui->tableWidget->setRowCount(32);
     ui->tableWidget->setColumnCount(8);
     horzHeaders << QObject::tr("Vòi số")
                 << QObject::tr("Thời điểm gần nhất")
@@ -37,17 +38,18 @@ Scada::~Scada()
 
 void Scada::updateScada()
 {
-    for(int i = 0;i < 20;i++){
-        for(int j = 0;j < 4; j++){
-            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i*4+j, 0),nozzle_arr[i][j].name,Qt::EditRole);
-            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i*4+j, 1),nozzle_arr[i][j].time,Qt::EditRole);
-            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i*4+j, 2),nozzle_arr[i][j].disconnect,Qt::EditRole);
-            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i*4+j, 3),nozzle_arr[i][j].lostLog,Qt::EditRole);
-            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i*4+j, 4),nozzle_arr[i][j].shutdown,Qt::EditRole);
-            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i*4+j, 5),nozzle_arr[i][j].totalMoney,Qt::EditRole);
-            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i*4+j, 6),nozzle_arr[i][j].liter,Qt::EditRole);
-            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i*4+j, 7),nozzle_arr[i][j].unitPrice,Qt::EditRole);
-        }
+    if(nozzlePtr == nullptr){
+        return;
+    }
+    for(int i = 0;i < nozzleNum;i++){
+            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 0),nozzlePtr[i].getName(),Qt::EditRole);
+            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 1),nozzlePtr[i].getTime(),Qt::EditRole);
+            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 2),nozzlePtr[i].getDisconnect(),Qt::EditRole);
+            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 3),nozzlePtr[i].getLostLog(),Qt::EditRole);
+            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 4),nozzlePtr[i].getShutDown(),Qt::EditRole);
+            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 5),nozzlePtr[i].getTotalMoney(),Qt::EditRole);
+            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 6),nozzlePtr[i].getLiter(),Qt::EditRole);
+            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 7),nozzlePtr[i].getUnitPrice(),Qt::EditRole);
     }
 }
 
@@ -62,18 +64,26 @@ Scada *Scada::getScada()
 
 nozzle2D *Scada::getNozzle()
 {
-    return &nozzle_arr;
+    return nullptr;
+}
+
+void Scada::initListNozzle(Nozzle *list, uint8_t num)
+{
+    nozzlePtr = list;
+    nozzleNum = num;
 }
 
 void Scada::updateNozzleData(NozzleMessage &data)
 {
+    /// thong nhat su dung con tro tro toi mang nozzlearr[32] o lop mainwindow
+#if 0
     uint8_t id485 = 0;
     uint8_t no;
     uint8_t status = 0;
     QDateTime time_current = QDateTime::currentDateTime();
     id485 = data.Id;
     no = data.No;
-    if(id485 < NOZZLE_NUM && id485 >= 0){
+    if(id485 < NOZZLE_NUM && id485 >= MIN_ID485){
         status = data.Status;
         nozzle_arr[id485][no].time = time_current.toString("dd/MM/yyyy hh:mm:ss");
         switch (status) {
@@ -95,6 +105,7 @@ void Scada::updateNozzleData(NozzleMessage &data)
             break;
         }
     }
+#endif
     ui->statusConnect->setText("Connected");
     ui->statusConnect->setStyleSheet("font-weight: bold; color: blue;");
 }

@@ -14,11 +14,7 @@ Filter::Filter(QWidget *parent) :
 {
     ui->setupUi(this);
     this->setWindowTitle("Báo Cáo");
-this->setWindowIcon(QIcon(":/UI/Icon/p.ico"));
-    for(int i = 0;i < NOZZLE_NUM;i++){
-        ui->nozzleID->addItem(QString::number(i));
-    }
-    ui->nozzleID->addItem("*");
+    this->setWindowIcon(QIcon(":/UI/Icon/p.ico"));
     ui->dateTimeBegin->setDateTime(QDateTime::currentDateTime());
     ui->dateTimeFinish->setDateTime(QDateTime::currentDateTime());
 }
@@ -37,6 +33,16 @@ Filter *Filter::getFilter()
     return self;
 }
 
+void Filter::initListNozzle(Nozzle *list, uint8_t num)
+{
+    nozzleNum = num;
+    nozzlePtr = list;
+    for(int i = 0;i < nozzleNum;i++){
+        ui->nozzleID->addItem(nozzlePtr[i].getName());
+    }
+    ui->nozzleID->addItem("*");
+}
+
 void Filter::on_pushQuery_clicked()
 {
     static QSqlTableModel *model_1 = new QSqlTableModel;
@@ -51,7 +57,7 @@ void Filter::on_pushQuery_clicked()
     qry_cmd2.append(ui->dateTimeFinish->dateTime().toString("dd/MM/yyyy hh:mm:ss"));
     qry_cmd2.append("'");
     /**************************************/
-    qry_cmd.append("SELECT ID,sum(Disconnect) as [Số lần mất \nkết nối] ,sum(Startup) as [Số lần \nkhởi động],sum(MissLog) as [Số lần \nmất log] from err_log WHERE Time BETWEEN '");
+    qry_cmd.append("SELECT Vòi,sum(Disconnect) as [Số lần mất \nkết nối] ,sum(Startup) as [Số lần \nkhởi động],sum(MissLog) as [Số lần \nmất log] from err_log WHERE Time BETWEEN '");
     qry_cmd.append(ui->dateTimeBegin->dateTime().toString("dd/MM/yyyy hh:mm:ss"));
     qry_cmd.append("' and '");
     qry_cmd.append(ui->dateTimeFinish->dateTime().toString("dd/MM/yyyy hh:mm:ss"));
@@ -63,18 +69,23 @@ void Filter::on_pushQuery_clicked()
 //    qry_cmd.append(ui->dateTimeFinish->dateTime().toString());
 //    qry_cmd.append("'");
     if(ui->nozzleID->currentText() == "*"){
-        qry_cmd.append(" group by ID");
+        qry_cmd.append(" group by Vòi");
 //        qry_cmd.append(" group by ID,Status");
     }else{
-        qry_cmd.append(" and ID = ");
+        qry_cmd.append(" and Vòi = ");
+        qry_cmd.append("'");
         qry_cmd.append(ui->nozzleID->currentText());
+        qry_cmd.append("'");
 //        qry_cmd.append(" and ID = ");
 //        qry_cmd.append(ui->nozzleID->currentText());
 //        qry_cmd.append(" group by Status");
         qry_cmd2.append(" and Vòi = ");
+        qry_cmd2.append("'");
         qry_cmd2.append(ui->nozzleID->currentText());
+        qry_cmd2.append("'");
     }
     query1.prepare(qry_cmd);
+    qDebug()<< qry_cmd;
     if (!query1.exec(qry_cmd)) {
         qDebug() << "1Insert failed:" << query1.lastError();
     }
@@ -87,6 +98,7 @@ void Filter::on_pushQuery_clicked()
 //    ui->total->resizeColumnsToContents();
     ui->total->show();
     query2.prepare(qry_cmd2);
+    qDebug()<< qry_cmd2;
     if (!query2.exec(qry_cmd2)) {
         qDebug() << "2Insert failed:" << query2.lastError();
     }

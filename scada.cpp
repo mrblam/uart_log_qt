@@ -1,8 +1,7 @@
 #include "scada.h"
 #include "ui_scada.h"
 #include "nozzlehelper.h"
-
-//static nozzle nozzle_arr[20][4];
+#include <QSqlQuery>
 
 Scada::Scada(QWidget *parent) :
     QWidget(parent),
@@ -77,45 +76,30 @@ void Scada::initListNozzle(Nozzle *list, uint8_t num)
 
 void Scada::updateNozzleData(NozzleMessage &data)
 {
-    /// thong nhat su dung con tro tro toi mang nozzlearr[32] o lop mainwindow
-#if 0
-    uint8_t id485 = 0;
-    uint8_t no;
-    uint8_t status = 0;
-    QDateTime time_current = QDateTime::currentDateTime();
-    id485 = data.Id;
-    no = data.No;
-    if(id485 < NOZZLE_NUM && id485 >= MIN_ID485){
-        status = data.Status;
-        nozzle_arr[id485][no].time = time_current.toString("dd/MM/yyyy hh:mm:ss");
-        switch (status) {
-        case 0:
-            nozzle_arr[id485][no].liter = data.liter_idle.toLongLong();
-            nozzle_arr[id485][no].unitPrice = data.unitPrice_idle.toLongLong();
-            nozzle_arr[id485][no].totalMoney = data.money_idle.toLongLong();
-            break;
-        case 1:
-            nozzle_arr[id485][no].lostLog++;
-            break;
-        case 2:
-            nozzle_arr[id485][no].disconnect++;
-            break;
-        case 3:
-            nozzle_arr[id485][no].shutdown++;
-            break;
-        default:
-            break;
-        }
-    }
-#endif
+    QSqlQuery query;
+    QDateTime currentTime;
     ui->statusConnect->setText("Connected");
     ui->statusConnect->setStyleSheet("font-weight: bold; color: blue;");
+    currentTime = QDateTime::currentDateTime();
+    query.prepare("insert into Log_State values (:time,'MCU Connected')");
+    query.bindValue(":time", currentTime.toString("dd/MM/yyyy hh:mm:ss"));
+    if (!query.exec()) {
+        qDebug() << "Insert disconnect into Log_State failed";
+    }
 }
 
 void Scada::setDisconnectToMCU()
 {
+    QSqlQuery query;
+    QDateTime currentTime;
     ui->statusConnect->setText("Disconnect from MCU (Timeout)");
     ui->statusConnect->setStyleSheet("font-weight: bold; color: red;");
+    currentTime = QDateTime::currentDateTime();
+    query.prepare("insert into Log_State values (:time,'MCU Timeout')");
+    query.bindValue(":time", currentTime.toString("dd/MM/yyyy hh:mm:ss"));
+    if (!query.exec()) {
+        qDebug() << "Insert disconnect into Log_State failed";
+    }
 }
 
 

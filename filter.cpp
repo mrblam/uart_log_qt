@@ -64,15 +64,11 @@ void Filter::on_pushQuery_clicked()
     qryCmdErrLog.append("'");
     if(ui->nozzleID->currentText() == "*"){
         qryCmdErrLog.append(" group by Vòi");
-//        qry_cmd.append(" group by ID,Status");
     }else{
         qryCmdErrLog.append(" and Vòi = ");
         qryCmdErrLog.append("'");
         qryCmdErrLog.append(ui->nozzleID->currentText());
         qryCmdErrLog.append("'");
-//        qry_cmd.append(" and ID = ");
-//        qry_cmd.append(ui->nozzleID->currentText());
-//        qry_cmd.append(" group by Status");
         qryCmdLogRS232.append(" and Vòi = ");
         qryCmdLogRS232.append("'");
         qryCmdLogRS232.append(ui->nozzleID->currentText());
@@ -89,7 +85,6 @@ void Filter::on_pushQuery_clicked()
     ui->total->setModel(modelErrLog);
     ui->total->verticalHeader()->setVisible(false);
     ui->total->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-//    ui->total->resizeColumnsToContents();
     ui->total->show();
     queryLogRS232.prepare(qryCmdLogRS232);
     qDebug()<< qryCmdLogRS232;

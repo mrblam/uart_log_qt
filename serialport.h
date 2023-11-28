@@ -30,7 +30,7 @@ signals:
     void handleMsgType1(NozzleMessage &data);
     void handleMsgType2(NozzleMessage &data);
     void showDataReceived(QByteArray data);
-    void updateNozzleData(NozzleMessage &data);
+    void updateState(NozzleMessage &data);
     void disconnectToMCU();
 private:
     QSerialPort *serialPort = nullptr;

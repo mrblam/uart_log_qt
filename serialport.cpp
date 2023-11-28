@@ -77,14 +77,22 @@ void SerialPort::timeOut()
 }
 void SerialPort::processReceivedData()
 {
+    static bool isDisconnect = false;
+    static bool isConnect = false;
     timeoutSetDisconnect ++;
-    if(timeoutSetDisconnect > TIMEOUT_TO_RECEIVE_DATA){
+    if(timeoutSetDisconnect > TIMEOUT_TO_RECEIVE_DATA && isDisconnect == false){
+        isDisconnect =true;
+        isConnect = false;
         emit disconnectToMCU();
         timeoutSetDisconnect = 0;
     }
     pack_found=getRxDataPack();//polling 200ms
-    if(pack_found<=0) return;
-
+    if(pack_found<=0) return;//is new msg
+    isDisconnect = false;
+    if(isConnect == false){
+        isConnect = true;
+        emit updateState(nozzleMsg);
+    }
     switch (pack_found) {
     case 4:
         nozzleMsg.Id                = packReady[0];
@@ -102,8 +110,7 @@ void SerialPort::processReceivedData()
         nozzleMsg.liter_idle        = "0x00";
         nozzleMsg.unitPrice_idle    = "0x00";
         nozzleMsg.money_idle        = "0x00";
-        emit updateNozzleData(nozzleMsg);
-        emit handleMsgType2(nozzleMsg);
+        emit handleMsgType2(nozzleMsg);//mainWindow
         break;
     case 93:
         nozzleMsg.Id                = packReady[0];
@@ -121,10 +128,9 @@ void SerialPort::processReceivedData()
         nozzleMsg.liter_now         = packReady.mid(69,8);
         nozzleMsg.unitPrice_now     = packReady.mid(77,6);
         nozzleMsg.money_now         = packReady.mid(83,8);
-        emit updateNozzleData(nozzleMsg); //SCADA
         emit handleMsgType1(nozzleMsg); //mainWindow
         break;
-    default:
+    default:    
         return;
     }
 }

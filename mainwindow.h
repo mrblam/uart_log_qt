@@ -29,11 +29,11 @@ private slots:
     void handleMsgType1(NozzleMessage &data);
 
     void handleMsgType2(NozzleMessage &data);
-    void on_btnSend_clicked();
 
     void on_btnScada_clicked();
 
     void showDataReceived(QByteArray data);
+
     void on_pushQuery_clicked();
 
     void on_assignNozzle_clicked();

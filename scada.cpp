@@ -47,9 +47,11 @@ void Scada::updateScada()
             ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 2),nozzlePtr[i].getDisconnect(),Qt::EditRole);
             ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 3),nozzlePtr[i].getLostLog(),Qt::EditRole);
             ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 4),nozzlePtr[i].getShutDown(),Qt::EditRole);
-            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 5),nozzlePtr[i].getTotalMoney(),Qt::EditRole);
-            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 6),nozzlePtr[i].getLiter(),Qt::EditRole);
-            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 7),nozzlePtr[i].getUnitPrice(),Qt::EditRole);
+            if(nozzlePtr[i].getStatus() == 0){
+                ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 5),nozzlePtr[i].getTotalMoney(),Qt::EditRole);
+                ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 6),nozzlePtr[i].getLiter(),Qt::EditRole);
+                ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 7),nozzlePtr[i].getUnitPrice(),Qt::EditRole);
+            }
     }
 }
 

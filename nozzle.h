@@ -11,6 +11,7 @@ public:
     QString getName();
     uint8_t getId485();
     uint8_t getNo();
+    uint8_t getStatus();
     uint64_t getUnitPrice();
     uint64_t getLiter();
     uint64_t getTotalMoney();
@@ -22,6 +23,7 @@ public:
     void setName(QString name);
     void setId485(uint8_t id);
     void setNo(uint8_t no);
+    void setStatus(uint8_t stt);
     void setUnitPrice(uint64_t data);
     void setTime(QString data);
     void setLiter(uint64_t data);
@@ -33,6 +35,7 @@ private:
     QString name;
     uint8_t id485;
     uint8_t no;
+    uint8_t Status;
     uint64_t unitPrice = 0;
     uint64_t liter = 0;
     uint64_t totalMoney = 0;

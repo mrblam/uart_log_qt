@@ -4,7 +4,6 @@
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QSqlQuery>
-#include <QSqlTableModel>
 #include <QTimer>
 #include <QDateTime>
 #include <scada.h>
@@ -17,7 +16,7 @@
 static bool s_ErrMissLog = false;
 static bool s_ErrDisconnect = false;
 static bool s_ErrStartup = false;
-
+static uint64_t msgcounter = 0;
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -37,7 +36,39 @@ MainWindow::MainWindow(QWidget *parent)
     this->setWindowIcon(QIcon(":/UI/Icon/p.ico"));
     nozzleNum = 0;
     nozzlePtr = nozzleArr;
-
+    /**/
+        QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+        db.setDatabaseName("mydatabase.db");
+        if (!db.open()) {
+            qDebug() << "Cannot careate new database. Error:" << db.lastError().text();
+        } else {
+            qDebug() << QObject::tr("Database is open!");
+            QSqlQuery query;
+            query.exec("create table LogRS232 (Vòi TEXT,"
+                       "Id485 TEXT,"
+                       "No TEXT,"
+                       "[Trạng thái] TEXT,"
+                       "[Lượng lít(bắt đầu)] TEXT,"
+                       "[Đơn giá(bắt đầu)] TEXT,"
+                       "[Thành tiền(bắt đầu)] TEXT,"
+                       "[Lượng lít(kết thúc)] TEXT,"
+                       "[Đơn giá(kết thúc)] TEXT,"
+                       "[Thành tiền(kết thúc)] TEXT,"
+                       "[Thời gian] DATETIME)");
+            query.exec("create table err_log (Vòi TEXT,MissLog TEXT,Disconnect TEXT,Startup TEXT,Time DATETIME)");
+            query.exec("create table Nozzle_Assign (Vòi TEXT,ID485 INT,No INT)");
+        }
+    /**/
+    /**/
+    QSqlTableModel *model11 = new QSqlTableModel;
+    model11->setTable("Nozzle_Assign");
+    model11->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    model11->select();
+    ui->assignResult->setModel(model11);
+    ui->assignResult->resizeColumnsToContents();
+    ui->assignResult->show();
+    /**/
+#if 0
     ui->assignResult->setRowCount(1);
     ui->assignResult->setColumnCount(3);
     horzHeaders << QObject::tr("Tên vòi")
@@ -46,6 +77,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->assignResult->setHorizontalHeaderLabels(horzHeaders);
     ui->assignResult->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->assignResult->show();
+#endif
 }
 MainWindow::~MainWindow()
 {
@@ -71,39 +103,20 @@ void MainWindow::on_pushOpen_pressed()
         ui->btnScada->setEnabled(true);
         ui->pushQuery->setEnabled(true);
         ui->statusPort->setStyleSheet("color: blue;");
-        QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-        db.setDatabaseName("mydatabase.db");
-        if (!db.open()) {
-            qDebug() << "Cannot careate new database. Error:" << db.lastError().text();
-        } else {
-            qDebug() << QObject::tr("Database is open!");
-            QSqlQuery query;
-            query.exec("create table LogRS232 (Vòi TEXT,"
-                       "Id485 TEXT,"
-                       "No TEXT,"
-                       "[Trạng thái] TEXT,"
-                       "[Lượng lít(bắt đầu)] TEXT,"
-                       "[Đơn giá(bắt đầu)] TEXT,"
-                       "[Thành tiền(bắt đầu)] TEXT,"
-                       "[Lượng lít(kết thúc)] TEXT,"
-                       "[Đơn giá(kết thúc)] TEXT,"
-                       "[Thành tiền(kết thúc)] TEXT,"
-                       "[Thời gian] DATETIME)");
-            query.exec("create table err_log (Vòi TEXT,MissLog TEXT,Disconnect TEXT,Startup TEXT,Time DATETIME)");
-        }
-        QSqlTableModel *model = new QSqlTableModel;
+        /**/
+        /**/
+        static QSqlTableModel *model = new QSqlTableModel;
         model->setTable("LogRS232");
         model->setEditStrategy(QSqlTableModel::OnManualSubmit);
         model->select();
         ui->tableViewDb->setEditTriggers(QAbstractItemView::NoEditTriggers);
         ui->tableViewDb->setModel(model);
         ui->tableViewDb->show();
-        delete(model);
+//        delete(model);
     }
 }
 void MainWindow::handleMsgType1(NozzleMessage &data)
 {
-    static uint64_t msgcounter = 0;
     msgcounter++;
     ui->msgCounter->display(QString::number(msgcounter));
     static QSqlTableModel *model_1 = new QSqlTableModel;
@@ -118,6 +131,7 @@ void MainWindow::handleMsgType1(NozzleMessage &data)
     /*fill data vao cac doi tuong voi bom*/
     currentTime = QDateTime::currentDateTime();
     qDebug() << currentTime.toString("dd/MM/yyyy hh:mm:ss");
+    nozzleTarget->setStatus(_port.nozzleMsg.Status);
     nozzleTarget->setTime(currentTime.toString("dd/MM/yyyy hh:mm:ss"));
     nozzleTarget->setLiter(_port.nozzleMsg.liter_finish.toLongLong());
     nozzleTarget->setTotalMoney(_port.nozzleMsg.money_finish.toLongLong());
@@ -156,9 +170,7 @@ void MainWindow::handleMsgType1(NozzleMessage &data)
     qry_cmd.append(nozzleTarget->getTime());
     qry_cmd.append("'");
     qry_cmd.append(")");
-//    currentTime = QDateTime::currentDateTime();
     query.prepare(qry_cmd);
-//    query.bindValue(":time", currentTime.toString("dd/MM/yyyy hh:mm:ss"));
     qDebug()<< qry_cmd;
     if (!query.exec()) {
         qDebug() << "Insert failed:" << query.lastError();
@@ -173,6 +185,7 @@ void MainWindow::handleMsgType1(NozzleMessage &data)
     case 0:
         break;
     case 1:
+        nozzleTarget->setLostLog();
         s_ErrMissLog = true;
         break;
     case 2:
@@ -214,10 +227,15 @@ void MainWindow::handleMsgType2(NozzleMessage &data)
     QDateTime currentTime;
     QSqlQuery query;
     QString qry_cmd_table2 = "insert into err_log values(";
+    QString qry_cmd_mainTable = "insert into LogRS232 values(";
+    msgcounter++;
+    ui->msgCounter->display(QString::number(msgcounter));
     for(int i = 0 ; i < nozzleNum;i++){
         if(nozzlePtr[i].getId485() == data.Id){
+            /**/
+            nozzlePtr[i].setStatus(data.Status);
             qry_cmd_table2.append("'");
-            qry_cmd_table2.append(nozzlePtr->getName());
+            qry_cmd_table2.append(nozzlePtr[i].getName());
             qry_cmd_table2.append("'");
             qry_cmd_table2.append(",");
             switch (data.Status){
@@ -227,9 +245,11 @@ void MainWindow::handleMsgType2(NozzleMessage &data)
                 s_ErrMissLog = true;
                 break;
             case 2:
+                nozzlePtr[i].setDisconnect();
                 s_ErrDisconnect = true;
                 break;
             case 3:
+                nozzlePtr[i].setShutdown();
                 s_ErrStartup = true;
                 break;
             default:
@@ -243,8 +263,10 @@ void MainWindow::handleMsgType2(NozzleMessage &data)
             qry_cmd_table2.append(",");
             qry_cmd_table2.append(":time)");
             currentTime = QDateTime::currentDateTime();
+            nozzlePtr[i].setTime(currentTime.toString("dd/MM/yyyy hh:mm:ss"));
             query.prepare(qry_cmd_table2);
             query.bindValue(":time", currentTime.toString("dd/MM/yyyy hh:mm:ss"));
+            qDebug() << qry_cmd_table2;
             if (!query.exec()) {
                 qDebug() << "Insert Err_log failed:" << query.lastError();
             }
@@ -252,6 +274,37 @@ void MainWindow::handleMsgType2(NozzleMessage &data)
             s_ErrMissLog = false;
             s_ErrDisconnect = false;
             s_ErrStartup = false;
+            /*main table*/
+            qry_cmd_mainTable.append("'");
+            qry_cmd_mainTable.append(nozzlePtr[i].getName());
+            qry_cmd_mainTable.append("'");
+            qry_cmd_mainTable.append(",");
+            qry_cmd_mainTable.append(QString::number(_port.nozzleMsg.Id));
+            qry_cmd_mainTable.append(",");
+            qry_cmd_mainTable.append(QString::number(_port.nozzleMsg.No));
+            qry_cmd_mainTable.append(",");
+            qry_cmd_mainTable.append(QString::number(_port.nozzleMsg.Status));
+            qry_cmd_mainTable.append(",");
+            qry_cmd_mainTable.append(_port.nozzleMsg.liter_begin);
+            qry_cmd_mainTable.append(",");
+            qry_cmd_mainTable.append(_port.nozzleMsg.unitPrice_begin);
+            qry_cmd_mainTable.append(",");
+            qry_cmd_mainTable.append(_port.nozzleMsg.money_begin);
+            qry_cmd_mainTable.append(",");
+            qry_cmd_mainTable.append(_port.nozzleMsg.liter_finish);
+            qry_cmd_mainTable.append(",");
+            qry_cmd_mainTable.append(_port.nozzleMsg.unitPrice_finish);
+            qry_cmd_mainTable.append(",");
+            qry_cmd_mainTable.append(_port.nozzleMsg.money_finish);
+            qry_cmd_mainTable.append(",");
+            qry_cmd_mainTable.append(":time)");
+            query.prepare(qry_cmd_mainTable);
+            query.bindValue(":time", currentTime.toString("dd/MM/yyyy hh:mm:ss"));
+            qDebug() << qry_cmd_mainTable;
+            if (!query.exec()) {
+                qDebug() << "Insert Err_log failed:" << query.lastError();
+            }
+            qry_cmd_mainTable.clear();
         }
     }
 }
@@ -307,21 +360,67 @@ void MainWindow::on_assignNozzle_clicked()
         QMessageBox::critical(this,"Error",tr("Số vòi đã đạt giới hạn"));
         return;
     }
+    /*insert assign nozzle to db*/
+    QSqlQuery query;
+    QString qry_cmd = "insert into Nozzle_Assign values('";
+    qry_cmd.append(ui->nameNozzle->text());
+    qry_cmd.append("'");
+    qry_cmd.append(",");
+    qry_cmd.append(ui->ID485->text());
+    qry_cmd.append(",");
+    qry_cmd.append(ui->No->text());
+    qry_cmd.append(")");
+    /**/
+    query.prepare(qry_cmd);
+    //    query.bindValue(":time", currentTime.toString("dd/MM/yyyy hh:mm:ss"));
+    qDebug()<< qry_cmd;
+    if (!query.exec()) {
+        qDebug() << "Insert failed:" << query.lastError();
+    }
+    /*Show db*/
+    static QSqlTableModel *assignNozzleModel = new QSqlTableModel;
+    assignNozzleModel->setTable("Nozzle_Assign");
+    assignNozzleModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    assignNozzleModel->select();
+    ui->assignResult->setModel(assignNozzleModel);
+    ui->assignResult->resizeColumnsToContents();
+    ui->assignResult->show();
+    /**/
+#if 0
     ui->assignResult->model()->setData(ui->assignResult->model()->index(nozzleNum, 0),ui->nameNozzle->text(),Qt::EditRole);
     ui->assignResult->model()->setData(ui->assignResult->model()->index(nozzleNum, 1),ui->ID485->text(),Qt::EditRole);
     ui->assignResult->model()->setData(ui->assignResult->model()->index(nozzleNum, 2),ui->No->text(),Qt::EditRole);
     nozzlePtr[nozzleNum].setName(ui->nameNozzle->text());
     nozzlePtr[nozzleNum].setId485(ui->ID485->text().toUInt());
     nozzlePtr[nozzleNum].setNo(ui->No->text().toUInt());
+#endif
     ui->nameNozzle->clear();
     ui->ID485->clear();
     ui->No->clear();
     nozzleNum++;
-    ui->assignResult->setRowCount(nozzleNum+1);
+//    ui->assignResult->setRowCount(nozzleNum+1);
 }
 
 void MainWindow::on_assignFinish_clicked()
 {
+    QSqlQuery query ;
+    uint8_t i = 0;
+    QString qry_cmd = "SELECT * FROM Nozzle_Assign";
+    query.prepare(qry_cmd);
+    if (!query.exec()) {
+        qDebug() << "Insert failed:" << query.lastError();
+    }
+    while(query.next()){
+        nozzlePtr[i].setName(query.value("Vòi").toString());
+        nozzlePtr[i].setId485(query.value("ID485").toInt());
+        nozzlePtr[i].setNo(query.value("No").toInt());
+        nozzlePtr[i].setLiter(0);
+        nozzlePtr[i].setTotalMoney(0);
+        nozzlePtr[i].setUnitPrice(0);
+        nozzlePtr[i].setStatus(0);
+        i++;
+    }
+    nozzleNum = i;
     ui->assignNozzle->setEnabled(false);
     ui->pushOpen->setEnabled(true);
 }

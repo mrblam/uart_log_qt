@@ -16,6 +16,11 @@ uint8_t Nozzle::getId485()
     return id485;
 }
 
+uint8_t Nozzle::getStatus()
+{
+    return Status;
+}
+
 uint64_t Nozzle::getUnitPrice()
 {
     return unitPrice;
@@ -74,6 +79,11 @@ void Nozzle::setId485(uint8_t id)
 void Nozzle::setNo(uint8_t data)
 {
     no = data;
+}
+
+void Nozzle::setStatus(uint8_t stt)
+{
+    Status = stt;
 }
 
 void Nozzle::setUnitPrice(uint64_t data)

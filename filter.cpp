@@ -45,67 +45,61 @@ void Filter::initListNozzle(Nozzle *list, uint8_t num)
 
 void Filter::on_pushQuery_clicked()
 {
-    static QSqlTableModel *model_1 = new QSqlTableModel;
-    static QSqlTableModel *model_2 = new QSqlTableModel;
-    QSqlQuery query1;
-    QSqlQuery query2;
-    QString qry_cmd2;
-    QString qry_cmd;
-    qry_cmd2.append("SELECT * FROM LogRS232 where [Thời gian] between '");
-    qry_cmd2.append(ui->dateTimeBegin->dateTime().toString("dd/MM/yyyy hh:mm:ss"));
-    qry_cmd2.append("' and '");
-    qry_cmd2.append(ui->dateTimeFinish->dateTime().toString("dd/MM/yyyy hh:mm:ss"));
-    qry_cmd2.append("'");
+    static QSqlTableModel *modelErrLog = new QSqlTableModel;
+    static QSqlTableModel *modelLogRS232 = new QSqlTableModel;
+    QSqlQuery queryErrLog;
+    QSqlQuery queryLogRS232;
+    QString qryCmdLogRS232;
+    QString qryCmdErrLog;
+    qryCmdLogRS232.append("SELECT * FROM LogRS232 where [Thời gian] between '");
+    qryCmdLogRS232.append(ui->dateTimeBegin->dateTime().toString("dd/MM/yyyy hh:mm:ss"));
+    qryCmdLogRS232.append("' and '");
+    qryCmdLogRS232.append(ui->dateTimeFinish->dateTime().toString("dd/MM/yyyy hh:mm:ss"));
+    qryCmdLogRS232.append("'");
     /**************************************/
-    qry_cmd.append("SELECT Vòi,sum(Disconnect) as [Số lần mất \nkết nối] ,sum(Startup) as [Số lần \nkhởi động],sum(MissLog) as [Số lần \nmất log] from err_log WHERE Time BETWEEN '");
-    qry_cmd.append(ui->dateTimeBegin->dateTime().toString("dd/MM/yyyy hh:mm:ss"));
-    qry_cmd.append("' and '");
-    qry_cmd.append(ui->dateTimeFinish->dateTime().toString("dd/MM/yyyy hh:mm:ss"));
-    qry_cmd.append("'");
-
-//    qry_cmd.append("select ID,Status,Count(*) as Count from LogRS232 where Time between '");
-//    qry_cmd.append(ui->dateTimeBegin->dateTime().toString());
-//    qry_cmd.append("' and '");
-//    qry_cmd.append(ui->dateTimeFinish->dateTime().toString());
-//    qry_cmd.append("'");
+    qryCmdErrLog.append("SELECT Vòi,sum(Disconnect) as [Số lần mất \nkết nối] ,sum(Startup) as [Số lần \nkhởi động],sum(MissLog) as [Số lần \nmất log] from err_log WHERE Time BETWEEN '");
+    qryCmdErrLog.append(ui->dateTimeBegin->dateTime().toString("dd/MM/yyyy hh:mm:ss"));
+    qryCmdErrLog.append("' and '");
+    qryCmdErrLog.append(ui->dateTimeFinish->dateTime().toString("dd/MM/yyyy hh:mm:ss"));
+    qryCmdErrLog.append("'");
     if(ui->nozzleID->currentText() == "*"){
-        qry_cmd.append(" group by Vòi");
+        qryCmdErrLog.append(" group by Vòi");
 //        qry_cmd.append(" group by ID,Status");
     }else{
-        qry_cmd.append(" and Vòi = ");
-        qry_cmd.append("'");
-        qry_cmd.append(ui->nozzleID->currentText());
-        qry_cmd.append("'");
+        qryCmdErrLog.append(" and Vòi = ");
+        qryCmdErrLog.append("'");
+        qryCmdErrLog.append(ui->nozzleID->currentText());
+        qryCmdErrLog.append("'");
 //        qry_cmd.append(" and ID = ");
 //        qry_cmd.append(ui->nozzleID->currentText());
 //        qry_cmd.append(" group by Status");
-        qry_cmd2.append(" and Vòi = ");
-        qry_cmd2.append("'");
-        qry_cmd2.append(ui->nozzleID->currentText());
-        qry_cmd2.append("'");
+        qryCmdLogRS232.append(" and Vòi = ");
+        qryCmdLogRS232.append("'");
+        qryCmdLogRS232.append(ui->nozzleID->currentText());
+        qryCmdLogRS232.append("'");
     }
-    query1.prepare(qry_cmd);
-    qDebug()<< qry_cmd;
-    if (!query1.exec(qry_cmd)) {
-        qDebug() << "1Insert failed:" << query1.lastError();
+    queryErrLog.prepare(qryCmdErrLog);
+    qDebug()<< qryCmdErrLog;
+    if (!queryErrLog.exec(qryCmdErrLog)) {
+        qDebug() << "1Insert failed:" << queryErrLog.lastError();
     }
-    model_1->setQuery(std::move(query1));
-    model_1->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    model_1->select();
-    ui->total->setModel(model_1);
+    modelErrLog->setQuery(std::move(queryErrLog));
+    modelErrLog->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    modelErrLog->select();
+    ui->total->setModel(modelErrLog);
     ui->total->verticalHeader()->setVisible(false);
     ui->total->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 //    ui->total->resizeColumnsToContents();
     ui->total->show();
-    query2.prepare(qry_cmd2);
-    qDebug()<< qry_cmd2;
-    if (!query2.exec(qry_cmd2)) {
-        qDebug() << "2Insert failed:" << query2.lastError();
+    queryLogRS232.prepare(qryCmdLogRS232);
+    qDebug()<< qryCmdLogRS232;
+    if (!queryLogRS232.exec(qryCmdLogRS232)) {
+        qDebug() << "2Insert failed:" << queryLogRS232.lastError();
     }
-    model_2->setQuery(std::move(query2));
-    model_2->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    model_2->select();
-    ui->logAfterFilter->setModel(model_2);
+    modelLogRS232->setQuery(std::move(queryLogRS232));
+    modelLogRS232->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    modelLogRS232->select();
+    ui->logAfterFilter->setModel(modelLogRS232);
     ui->logAfterFilter->resizeColumnsToContents();
     ui->logAfterFilter->show();
 }

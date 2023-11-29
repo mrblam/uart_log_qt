@@ -22,9 +22,9 @@ public:
     void updateScada();
     static Scada* getScada();
     nozzle2D* getNozzle();
-    void initListNozzle(Nozzle *list,uint8_t num);
+    void initListNozzle(Nozzle *list,uint8_t &num);
 public slots:
-    void updateNozzleData(NozzleMessage &data);
+    void insertConnectedStateToDB();
     void setDisconnectToMCU();
 private:
     Ui::Scada *ui;

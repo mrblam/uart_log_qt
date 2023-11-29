@@ -12,7 +12,7 @@ class LocalDB : public QObject
 public:
     explicit LocalDB();
     LocalDB* getLocalDB();
-    void createDb (LogRecord* record);
+    void insertDb ();
 private:
     QSqlDatabase database;
 };

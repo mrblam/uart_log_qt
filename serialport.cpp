@@ -8,7 +8,7 @@ SerialPort::SerialPort():pack_found(0)
 
 }
 
-bool SerialPort::connectPort(QString portName)
+bool SerialPort::connectPort(QString portName,int baud)
 {
     if(serialPort != nullptr){
         serialPort->close();
@@ -16,7 +16,7 @@ bool SerialPort::connectPort(QString portName)
     }
     serialPort = new QSerialPort;
     serialPort->setPortName(portName);
-    serialPort->setBaudRate(QSerialPort::BaudRate::Baud115200);
+    serialPort->setBaudRate(baud);
     serialPort->setParity(QSerialPort::Parity::NoParity);
     serialPort->setDataBits(QSerialPort::DataBits::Data8);
     serialPort->setStopBits(QSerialPort::OneStop);

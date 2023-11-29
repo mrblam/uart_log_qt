@@ -16,7 +16,7 @@ public:
     explicit Filter(QWidget *parent = nullptr);
     ~Filter();
     static Filter *getFilter();
-    void initListNozzle(Nozzle *list,uint8_t num);
+    void initListNozzle(Nozzle *list,uint8_t &num);
 private slots:
     void on_pushQuery_clicked();
 

@@ -56,9 +56,9 @@ QString Nozzle::getTime()
     return time;
 }
 
-Nozzle *Nozzle::findNozzle(Nozzle* src,uint8_t Id485, uint8_t No)
+Nozzle *Nozzle::findNozzle(Nozzle* src,uint8_t Id485, uint8_t No,uint8_t nozzNum)
 {
-    for(int i = 0; i < 32;i++){
+    for(int i = 0; i < nozzNum;i++){
         if(src[i].id485 == Id485 && src[i].no == No){
             return &src[i];
         }

@@ -17,7 +17,7 @@ LocalDB* LocalDB::getLocalDB()
     return self;
 }
 
-void LocalDB::createDb(LogRecord *record)
+void LocalDB::insertDb()
 {
 
 }

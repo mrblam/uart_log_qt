@@ -19,7 +19,7 @@ public:
     uint64_t getLostLog();
     uint64_t getShutDown();
     QString getTime();
-    Nozzle *findNozzle(Nozzle* src,uint8_t Id485,uint8_t No);
+    Nozzle *findNozzle(Nozzle* src,uint8_t Id485,uint8_t No,uint8_t num);
     void setName(QString name);
     void setId485(uint8_t id);
     void setNo(uint8_t no);

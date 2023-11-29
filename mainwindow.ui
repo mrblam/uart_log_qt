@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>803</width>
-    <height>463</height>
+    <width>663</width>
+    <height>450</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -61,6 +61,23 @@
            </size>
           </property>
          </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushReloadAssignNozz">
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+          <property name="text">
+           <string>Reload</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="labelAssignInfo">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
@@ -177,8 +194,17 @@
             </item>
             <item>
              <widget class="QPushButton" name="assignFinish">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="styleSheet">
+               <string notr="true"/>
+              </property>
               <property name="text">
-               <string>Xong</string>
+               <string>Cập nhật</string>
               </property>
              </widget>
             </item>
@@ -254,7 +280,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>803</width>
+     <width>663</width>
      <height>21</height>
     </rect>
    </property>

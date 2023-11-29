@@ -26,7 +26,7 @@ public:
 private slots:
     void on_pushOpen_pressed();
 
-    void handleMsgType1(NozzleMessage &data);
+    void handleMsgType1();
 
     void handleMsgType2(NozzleMessage &data);
 
@@ -39,6 +39,8 @@ private slots:
     void on_assignNozzle_clicked();
 
     void on_assignFinish_clicked();
+
+    void on_pushReloadAssignNozz_clicked();
 
 private:
     Ui::MainWindow *ui;

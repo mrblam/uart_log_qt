@@ -33,7 +33,7 @@ Filter *Filter::getFilter()
     return self;
 }
 
-void Filter::initListNozzle(Nozzle *list, uint8_t num)
+void Filter::initListNozzle(Nozzle *list, uint8_t &num)
 {
     nozzleNum = num;
     nozzlePtr = list;

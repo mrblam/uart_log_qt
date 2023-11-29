@@ -18,10 +18,25 @@ static bool s_ErrMissLog = false;
 static bool s_ErrDisconnect = false;
 static bool s_ErrStartup = false;
 static uint64_t msgCounter = 0;
+static void showTableLogRS232(Ui::MainWindow *ui)
+{
+    static QSqlTableModel *model = new QSqlTableModel;
+    model->setTable("LogRS232");
+    model->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    model->select();
+    ui->tableViewDb->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->tableViewDb->setModel(model);
+    ui->tableViewDb->resizeColumnsToContents();
+    ui->tableViewDb->scrollToBottom();
+    ui->tableViewDb->show();
+}
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+    QDateTime currentTime;
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+    QSqlQuery query;
     ui->setupUi(this);
     ui->btnScada->setEnabled(false);
     ui->pushQuery->setEnabled(false);
@@ -30,56 +45,65 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&_port,&SerialPort::showDataReceived,this,&MainWindow::showDataReceived);
     connect(&_port,&SerialPort::handleMsgType1,this,&MainWindow::handleMsgType1);
     connect(&_port,&SerialPort::handleMsgType2,this,&MainWindow::handleMsgType2);
-    connect(&_port,&SerialPort::updateState,Scada::getScada(),&Scada::updateNozzleData);
+    connect(&_port,&SerialPort::updateState,Scada::getScada(),&Scada::insertConnectedStateToDB);
     connect(&_port,&SerialPort::disconnectToMCU,Scada::getScada(),&Scada::setDisconnectToMCU);
     this->setWindowTitle("Peco Log");
     this->setWindowIcon(QIcon(":/UI/Icon/p.ico"));
     nozzleNum = 0;
     nozzlePtr = nozzleArr;
-    /**/
-    QDateTime currentTime;
-    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-//    bool dbExists = QFile::exists("mydatabase.db");
-//    if(!dbExists){
+    /*check COM Config*/
+    bool comConfig = QFile::exists("config/config_port.txt");
+    if(!comConfig){
+        QMessageBox::critical(this,"Warning","Chưa cấu hình cổng COM");
+    }
+    /*check db exists*/
     db.setDatabaseName("mydatabase.db");
-//    }
-    if (!db.open()) {
-        qDebug() << "Cannot careate new database. Error:" << db.lastError().text();
-    } else {
-        qDebug() << QObject::tr("Database is open!");
-        QSqlQuery query;
-        query.exec("create table LogRS232 (Vòi TEXT,"
-                   "Id485 TEXT,"
-                   "No TEXT,"
-                   "[Trạng thái] TEXT,"
-                   "[Lượng lít(bắt đầu)] TEXT,"
-                   "[Đơn giá(bắt đầu)] TEXT,"
-                   "[Thành tiền(bắt đầu)] TEXT,"
-                   "[Lượng lít(kết thúc)] TEXT,"
-                   "[Đơn giá(kết thúc)] TEXT,"
-                   "[Thành tiền(kết thúc)] TEXT,"
-                   "[Thời gian] DATETIME)");
-        query.exec("create table err_log (Vòi TEXT,MissLog TEXT,Disconnect TEXT,Startup TEXT,Time DATETIME)");
-        query.exec("create table Nozzle_Assign (Vòi TEXT,ID485 INT,No INT)");
-        query.exec("create table Log_State (Time DATETIME,State TEXT)");
-
-        currentTime = QDateTime::currentDateTime();
-        query.prepare("insert into Log_State values (:time,'Khởi động')");
-        query.bindValue(":time", currentTime.toString("dd/MM/yyyy hh:mm:ss"));
-        if (!query.exec()) {
-            qDebug() << "Insert Log_State failed:" << query.lastError();
+    bool dbExists = QFile::exists("mydatabase.db");
+    if(!dbExists){
+        if (!db.open()) {
+            qDebug() << "Cannot careate new database. Error:" << db.lastError().text();
+        } else {
+            qDebug() << QObject::tr("Database is open!");
+            query.exec("create table LogRS232 (Vòi TEXT,"
+                       "Id485 TEXT,"
+                       "No TEXT,"
+                       "[Trạng thái] TEXT,"
+                       "[Lượng lít(bắt đầu)] TEXT,"
+                       "[Đơn giá(bắt đầu)] TEXT,"
+                       "[Thành tiền(bắt đầu)] TEXT,"
+                       "[Lượng lít(kết thúc)] TEXT,"
+                       "[Đơn giá(kết thúc)] TEXT,"
+                       "[Thành tiền(kết thúc)] TEXT,"
+                       "[Thời gian] DATETIME)");
+            query.exec("create table err_log (Vòi TEXT,MissLog TEXT,Disconnect TEXT,Startup TEXT,Time DATETIME)");
+            query.exec("create table Nozzle_Assign (Vòi TEXT,ID485 INT,No INT)");
+            query.exec("create table Log_State (Time DATETIME,State TEXT)");
+            currentTime = QDateTime::currentDateTime();
+            query.prepare("insert into Log_State values (:time,'Khởi động')");
+            query.bindValue(":time", currentTime.toString("dd/MM/yyyy hh:mm:ss"));
+            if (!query.exec()) {
+                qDebug() << "Insert Log_State failed:" << query.lastError();
+            }
+            ui->assignNozzle->setEnabled(true);
+            ui->assignFinish->setEnabled(true);
+            ui->labelAssignInfo->setText("Chưa gán mã vòi bơm");
+            ui->labelAssignInfo->setStyleSheet("color: red;");
+        }
+    }else{
+        if (!db.open()) {
+            qDebug() << "Cannot open exist database. Error:" << db.lastError().text();
+        }else{
+            qDebug() << QObject::tr("Database is open!");
+            currentTime = QDateTime::currentDateTime();
+            query.prepare("insert into Log_State values (:time,'Khởi động')");
+            query.bindValue(":time", currentTime.toString("dd/MM/yyyy hh:mm:ss"));
+            if (!query.exec()) {
+                qDebug() << "Insert Log_State failed:" << query.lastError();
+            }
+            MainWindow::on_pushOpen_pressed();
+            MainWindow::on_assignFinish_clicked();
         }
     }
-    /**/
-    QSqlTableModel *model11 = new QSqlTableModel;
-    model11->setTable("Nozzle_Assign");
-    model11->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    model11->select();
-    ui->assignResult->setModel(model11);
-    ui->assignResult->resizeColumnsToContents();
-    ui->assignResult->show();
-    /**/
-    MainWindow::on_pushOpen_pressed();
 }
 MainWindow::~MainWindow()
 {
@@ -94,37 +118,54 @@ bool MainWindow::loadPort()
 }
 void MainWindow::on_pushOpen_pressed()
 {
-    auto isConnected = _port.connectPort("COM4");
-    if(!isConnected){
-        QMessageBox::critical(this,"Error","There is a problem connect to port");
-    }else{
-//        QMessageBox::information(this,"Result","Port open");
-        ui->pushOpen->setEnabled(false);
-        ui->portList->setEnabled(false);
-        ui->statusPort->setText("Opened");
-        ui->btnScada->setEnabled(true);
-        ui->pushQuery->setEnabled(true);
-        ui->statusPort->setStyleSheet("color: blue;");
-        /**/
-        static QSqlTableModel *model = new QSqlTableModel;
-        model->setTable("LogRS232");
-        model->setEditStrategy(QSqlTableModel::OnManualSubmit);
-        model->select();
-        ui->tableViewDb->setEditTriggers(QAbstractItemView::NoEditTriggers);
-        ui->tableViewDb->setModel(model);
-        ui->tableViewDb->show();
-//        delete(model);
+    QString portName;
+    int baud = 0;
+    uint8_t lineCount = 0;
+    /*Get port attribute*/
+    QFile file("config/config_port.txt");
+    if(!file.open(QIODevice::ReadOnly)) {
+        QMessageBox::critical(0, "Lỗi", file.errorString()+ "\nKiểm tra lại file config_port.txt");
+    }
+    QTextStream in(&file);
+    while(!in.atEnd()&& lineCount < 2) {
+        QString line = in.readLine();
+        QStringList parts = line.split(":");
+        if (parts.length() == 2 && parts[0].trimmed() == "port_name") {
+            portName = parts[1].trimmed();
+        }else if(parts.length() == 2 && parts[0].trimmed() == "baud"){
+            baud = parts[1].trimmed().toInt();
+        }
+        ++lineCount;
+    }
+    file.close();
+    /**/
+    if(portName != nullptr){
+        auto isConnected = _port.connectPort(portName,baud);
+        if(!isConnected){
+            QMessageBox::critical(this,"Error","Không thể mở cổng COM,kiểm tra lại cấu hình trong file config_port.txt");
+        }else{
+            //        QMessageBox::information(this,"Result","Port open");
+            ui->portList->setCurrentText(portName);
+            ui->pushOpen->setEnabled(false);
+            ui->portList->setEnabled(false);
+            ui->statusPort->setText("Opened");
+            ui->btnScada->setEnabled(true);
+            ui->pushQuery->setEnabled(true);
+            ui->statusPort->setStyleSheet("color: blue;");
+            /**/
+            showTableLogRS232(ui);
+            //        delete(model);
+        }
     }
 }
-void MainWindow::handleMsgType1(NozzleMessage &data)
+void MainWindow::handleMsgType1()
 {
     msgCounter++;
     ui->msgCounter->display(QString::number(msgCounter));
-    static QSqlTableModel *modelLogRS232 = new QSqlTableModel;
     QDateTime currentTime;
     QString qryCmdLogRS232 = "insert into LogRS232 values(";
     QSqlQuery query;
-    Nozzle *nozzleTarget = nozzlePtr->findNozzle(nozzlePtr,_port.nozzleMsg.Id,_port.nozzleMsg.No);
+    Nozzle *nozzleTarget = nozzlePtr->findNozzle(nozzlePtr,_port.nozzleMsg.Id,_port.nozzleMsg.No,nozzleNum);
     if(nozzleTarget == nullptr){
         qDebug() << "Not found Nozzle";
         return;
@@ -208,12 +249,8 @@ void MainWindow::handleMsgType1(NozzleMessage &data)
     s_ErrDisconnect = false;
     s_ErrStartup = false;
     /*Insert table error end*/
-    modelLogRS232->setTable("LogRS232");
-    modelLogRS232->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    modelLogRS232->select();
-    ui->tableViewDb->setModel(modelLogRS232);
-    ui->tableViewDb->resizeColumnsToContents();
-    ui->tableViewDb->show();
+    showTableLogRS232(ui);
+
 }
 
 void MainWindow::handleMsgType2(NozzleMessage &data)
@@ -301,6 +338,7 @@ void MainWindow::handleMsgType2(NozzleMessage &data)
             qryCmdLogRS232.clear();
         }
     }
+    showTableLogRS232(ui);
 }
 
 void MainWindow::on_btnScada_clicked()
@@ -379,34 +417,18 @@ void MainWindow::on_assignNozzle_clicked()
     qry_cmd.append(",");
     qry_cmd.append(ui->No->text());
     qry_cmd.append(")");
-    /**/
     query.prepare(qry_cmd);
     qDebug()<< qry_cmd;
     if (!query.exec()) {
         qDebug() << "Insert failed:" << query.lastError();
     }
     /*Show db*/
-    static QSqlTableModel *assignNozzleModel = new QSqlTableModel;
-    assignNozzleModel->setTable("Nozzle_Assign");
-    assignNozzleModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    assignNozzleModel->select();
-    ui->assignResult->setModel(assignNozzleModel);
-    ui->assignResult->resizeColumnsToContents();
-    ui->assignResult->show();
+    MainWindow::on_pushReloadAssignNozz_clicked();
     /**/
-#if 0
-    ui->assignResult->model()->setData(ui->assignResult->model()->index(nozzleNum, 0),ui->nameNozzle->text(),Qt::EditRole);
-    ui->assignResult->model()->setData(ui->assignResult->model()->index(nozzleNum, 1),ui->ID485->text(),Qt::EditRole);
-    ui->assignResult->model()->setData(ui->assignResult->model()->index(nozzleNum, 2),ui->No->text(),Qt::EditRole);
-    nozzlePtr[nozzleNum].setName(ui->nameNozzle->text());
-    nozzlePtr[nozzleNum].setId485(ui->ID485->text().toUInt());
-    nozzlePtr[nozzleNum].setNo(ui->No->text().toUInt());
-#endif
     ui->nameNozzle->clear();
     ui->ID485->clear();
     ui->No->clear();
     nozzleNum++;
-//    ui->assignResult->setRowCount(nozzleNum+1);
 }
 
 void MainWindow::on_assignFinish_clicked()
@@ -430,6 +452,26 @@ void MainWindow::on_assignFinish_clicked()
     }
     nozzleNum = i;
     ui->assignNozzle->setEnabled(false);
-//    ui->pushOpen->setEnabled(true);
+    ui->assignFinish->setEnabled(false);
+    ui->labelAssignInfo->setText("");
+    Scada *Scada_window = Scada::getScada();
+    Scada_window->initListNozzle(nozzlePtr,nozzleNum);
+    Filter *Filter_window = Filter::getFilter();
+    Filter_window->initListNozzle(nozzlePtr,nozzleNum);
+    MainWindow::on_pushOpen_pressed();
+}
+
+
+void MainWindow::on_pushReloadAssignNozz_clicked()
+{
+    static QSqlTableModel *assignNozzleModel = new QSqlTableModel;
+    assignNozzleModel->setTable("Nozzle_Assign");
+    assignNozzleModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    assignNozzleModel->select();
+    ui->assignResult->setModel(assignNozzleModel);
+    ui->assignResult->resizeColumnsToContents();
+    ui->assignResult->show();
+    ui->assignFinish->setEnabled(true);
+    ui->assignNozzle->setEnabled(true);
 }
 

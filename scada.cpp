@@ -12,7 +12,7 @@ Scada::Scada(QWidget *parent) :
     this->setWindowTitle("SCADA");
     this->setWindowIcon(QIcon(":/UI/Icon/p.ico"));
     connect(&heartbeatTicker,&QTimer::timeout,this,&Scada::updateScada);
-    heartbeatTicker.start(500);
+    heartbeatTicker.start(100);
     QStringList horzHeaders;
     ui->tableWidget->setRowCount(32);
     ui->tableWidget->setColumnCount(8);
@@ -52,6 +52,25 @@ void Scada::updateScada()
                 ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 7),nozzlePtr[i].getUnitPrice(),Qt::EditRole);
             }
     }
+    for(int i = nozzleNum;i < 32;i++){
+//            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 0),0,Qt::EditRole);
+//            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 1),0,Qt::EditRole);
+//            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 2),0,Qt::EditRole);
+//            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 3),0,Qt::EditRole);
+//            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 4),0,Qt::EditRole);
+//            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 5),0,Qt::EditRole);
+//            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 6),0,Qt::EditRole);
+//            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 7),0,Qt::EditRole);
+            ui->tableWidget->model()->clearItemData(ui->tableWidget->model()->index(i, 0));
+            ui->tableWidget->model()->clearItemData(ui->tableWidget->model()->index(i, 1));
+            ui->tableWidget->model()->clearItemData(ui->tableWidget->model()->index(i, 2));
+            ui->tableWidget->model()->clearItemData(ui->tableWidget->model()->index(i, 3));
+            ui->tableWidget->model()->clearItemData(ui->tableWidget->model()->index(i, 4));
+            ui->tableWidget->model()->clearItemData(ui->tableWidget->model()->index(i, 5));
+            ui->tableWidget->model()->clearItemData(ui->tableWidget->model()->index(i, 6));
+            ui->tableWidget->model()->clearItemData(ui->tableWidget->model()->index(i, 7));
+
+    }
 }
 
 Scada *Scada::getScada()
@@ -68,13 +87,13 @@ nozzle2D *Scada::getNozzle()
     return nullptr;
 }
 
-void Scada::initListNozzle(Nozzle *list, uint8_t num)
+void Scada::initListNozzle(Nozzle *list, uint8_t &num)
 {
     nozzlePtr = list;
     nozzleNum = num;
 }
 
-void Scada::updateNozzleData(NozzleMessage &data)
+void Scada::insertConnectedStateToDB()
 {
     QSqlQuery query;
     QDateTime currentTime;

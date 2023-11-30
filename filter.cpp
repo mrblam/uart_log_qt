@@ -16,7 +16,9 @@ Filter::Filter(QWidget *parent) :
     this->setWindowTitle("Báo Cáo");
     this->setWindowIcon(QIcon(":/UI/Icon/p.ico"));
     ui->dateTimeBegin->setDateTime(QDateTime::currentDateTime());
+    ui->dateTimeBegin->setDisplayFormat("dd/MM/yyyy hh:mm:ss");
     ui->dateTimeFinish->setDateTime(QDateTime::currentDateTime());
+    ui->dateTimeFinish->setDisplayFormat("dd/MM/yyyy hh:mm:ss");
 }
 
 Filter::~Filter()
@@ -37,6 +39,7 @@ void Filter::initListNozzle(Nozzle *list, uint8_t &num)
 {
     nozzleNum = num;
     nozzlePtr = list;
+    ui->nozzleID->clear();
     for(int i = 0;i < nozzleNum;i++){
         ui->nozzleID->addItem(nozzlePtr[i].getName());
     }
@@ -99,44 +102,3 @@ void Filter::on_pushQuery_clicked()
     ui->logAfterFilter->show();
 }
 //SELECT ID,sum(Disconnect),sum(Startup),sum(MissLog) from err_log WHERE Time BETWEEN 'Tue Nov 14 20:43:44 2023' AND 'Tue Nov 14 20:44:15 2023' GROUP BY ID
-
-void Filter::on_exportPDF_clicked()
-{
-//    QTextDocument *doc = new QTextDocument;
-//    doc->setDocumentMargin(10);
-//    QTextCursor cursor(doc);
-
-//    cursor.movePosition(QTextCursor::Start);
-
-//    QTextTable *table = cursor.insertTable(properties.size() + 1, 2, tableFormat);
-//    QTextTableCell headerCell = table->cellAt(0, 0);
-//    QTextCursor headerCellCursor = headerCell.firstCursorPosition();
-//    headerCellCursor.insertText(QObject::tr("Name"), boldFormat);
-//    headerCell = table->cellAt(0, 1);
-//    headerCellCursor = headerCell.firstCursorPosition();
-//    headerCellCursor.insertText(QObject::tr("Value"), boldFormat);
-
-//    for(int i = 0; i < properties.size(); i++){
-//        QTextCharFormat cellFormat = i % 2 == 0 ? textFormat : alternateCellFormat;
-//        QTextTableCell cell = table->cellAt(i + 1, 0);
-//        cell.setFormat(cellFormat);
-//        QTextCursor cellCursor = cell.firstCursorPosition();
-//        cellCursor.insertText(properties.at(i)->name());
-
-//        cell = table->cellAt(i + 1, 1);
-//        cell.setFormat(cellFormat);
-//        cellCursor = cell.firstCursorPosition();
-//        cellCursor.insertText(properties.at(i)->value().toString() + " " + properties.at(i)->unit());
-//    }
-
-//    cursor.movePosition(QTextCursor::End);
-//    cursor.insertBlock();
-
-//    //Print to PDF
-//    QPrinter printer(QPrinter::HighResolution);
-//    printer.setOutputFormat(QPrinter::PdfFormat);
-//    printer.setOutputFileName(filename);
-//    doc->print(&printer);
-
-}
-

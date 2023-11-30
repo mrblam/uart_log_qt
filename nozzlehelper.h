@@ -30,7 +30,7 @@ typedef enum Status{
     STARTUP
 } Status;
 typedef struct NozzleMessage{
-    uint8_t Id;
+    uint8_t Id485;
     uint8_t No;
     uint8_t Status;
 

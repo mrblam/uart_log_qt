@@ -100,7 +100,6 @@ MainWindow::MainWindow(QWidget *parent)
             if (!query.exec()) {
                 qDebug() << "Insert Log_State failed:" << query.lastError();
             }
-            MainWindow::on_pushOpen_pressed();
             MainWindow::on_assignFinish_clicked();
         }
     }
@@ -125,6 +124,7 @@ void MainWindow::on_pushOpen_pressed()
     QFile file("config/config_port.txt");
     if(!file.open(QIODevice::ReadOnly)) {
         QMessageBox::critical(0, "Lỗi", file.errorString()+ "\nKiểm tra lại file config_port.txt");
+        return;
     }
     QTextStream in(&file);
     while(!in.atEnd()&& lineCount < 2) {
@@ -165,7 +165,7 @@ void MainWindow::handleMsgType1()
     QDateTime currentTime;
     QString qryCmdLogRS232 = "insert into LogRS232 values(";
     QSqlQuery query;
-    Nozzle *nozzleTarget = nozzlePtr->findNozzle(nozzlePtr,_port.nozzleMsg.Id,_port.nozzleMsg.No,nozzleNum);
+    Nozzle *nozzleTarget = nozzlePtr->findNozzle(nozzlePtr,_port.nozzleMsg.Id485,_port.nozzleMsg.No,nozzleNum);
     if(nozzleTarget == nullptr){
         qDebug() << "Not found Nozzle";
         return;
@@ -183,7 +183,7 @@ void MainWindow::handleMsgType1()
     qryCmdLogRS232.append(nozzleTarget->getName());
     qryCmdLogRS232.append("'");
     qryCmdLogRS232.append(",");
-    qryCmdLogRS232.append(QString::number(_port.nozzleMsg.Id));
+    qryCmdLogRS232.append(QString::number(_port.nozzleMsg.Id485));
     qryCmdLogRS232.append(",");
     qryCmdLogRS232.append(QString::number(_port.nozzleMsg.No));
     qryCmdLogRS232.append(",");
@@ -262,7 +262,7 @@ void MainWindow::handleMsgType2(NozzleMessage &data)
     msgCounter++;
     ui->msgCounter->display(QString::number(msgCounter));
     for(int i = 0 ; i < nozzleNum;i++){
-        if(nozzlePtr[i].getId485() == data.Id){
+        if(nozzlePtr[i].getId485() == data.Id485){
             /**/
             nozzlePtr[i].setStatus(data.Status);
             qryCmdErrLog.append("'");
@@ -310,7 +310,7 @@ void MainWindow::handleMsgType2(NozzleMessage &data)
             qryCmdLogRS232.append(nozzlePtr[i].getName());
             qryCmdLogRS232.append("'");
             qryCmdLogRS232.append(",");
-            qryCmdLogRS232.append(QString::number(_port.nozzleMsg.Id));
+            qryCmdLogRS232.append(QString::number(_port.nozzleMsg.Id485));
             qryCmdLogRS232.append(",");
             qryCmdLogRS232.append(QString::number(_port.nozzleMsg.No));
             qryCmdLogRS232.append(",");
@@ -355,6 +355,7 @@ void MainWindow::on_btnScada_clicked()
 void MainWindow::showDataReceived(QByteArray data)
 {
     ui->plainTextEdit->insertPlainText(data.toHex());
+    ui->plainTextEdit->ensureCursorVisible();
 }
 
 void MainWindow::on_pushQuery_clicked()
@@ -440,6 +441,18 @@ void MainWindow::on_assignFinish_clicked()
     if (!query.exec()) {
         qDebug() << "Insert failed:" << query.lastError();
     }
+    /*Clear old data*/
+    for(int i =0;i < nozzleNum;i++){
+        nozzlePtr[i].setName("");
+        nozzlePtr[i].setTime("");
+        nozzlePtr[i].setId485(0);
+        nozzlePtr[i].setNo(0);
+        nozzlePtr[i].setLiter(0);
+        nozzlePtr[i].setTotalMoney(0);
+        nozzlePtr[i].setUnitPrice(0);
+        nozzlePtr[i].setStatus(0);
+    }
+    /**/
     while(query.next()){
         nozzlePtr[i].setName(query.value("Vòi").toString());
         nozzlePtr[i].setId485(query.value("ID485").toInt());

@@ -95,7 +95,7 @@ void SerialPort::processReceivedData()
     }
     switch (pack_found) {
     case 4:
-        nozzleMsg.Id                = packReady[0];
+        nozzleMsg.Id485                = packReady[0];
         nozzleMsg.No                = 0xFF;
         nozzleMsg.Status            = packReady[1];
         nozzleMsg.liter_now         = "0x00";
@@ -113,7 +113,7 @@ void SerialPort::processReceivedData()
         emit handleMsgType2(nozzleMsg);//mainWindow
         break;
     case 93:
-        nozzleMsg.Id                = packReady[0];
+        nozzleMsg.Id485                = packReady[0];
         nozzleMsg.No                = packReady[1];
         nozzleMsg.Status            = packReady[2];
         nozzleMsg.liter_begin       = packReady.mid(3,8);

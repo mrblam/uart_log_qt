@@ -53,14 +53,6 @@ void Scada::updateScada()
             }
     }
     for(int i = nozzleNum;i < 32;i++){
-//            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 0),0,Qt::EditRole);
-//            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 1),0,Qt::EditRole);
-//            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 2),0,Qt::EditRole);
-//            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 3),0,Qt::EditRole);
-//            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 4),0,Qt::EditRole);
-//            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 5),0,Qt::EditRole);
-//            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 6),0,Qt::EditRole);
-//            ui->tableWidget->model()->setData(ui->tableWidget->model()->index(i, 7),0,Qt::EditRole);
             ui->tableWidget->model()->clearItemData(ui->tableWidget->model()->index(i, 0));
             ui->tableWidget->model()->clearItemData(ui->tableWidget->model()->index(i, 1));
             ui->tableWidget->model()->clearItemData(ui->tableWidget->model()->index(i, 2));

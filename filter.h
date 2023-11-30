@@ -20,8 +20,6 @@ public:
 private slots:
     void on_pushQuery_clicked();
 
-    void on_exportPDF_clicked();
-
 private:
     Ui::Filter *ui;
     Nozzle *nozzlePtr;

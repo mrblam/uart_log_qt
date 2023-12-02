@@ -27,8 +27,8 @@ static void showTableLogRS232(Ui::MainWindow *ui)
     ui->tableViewDb->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tableViewDb->setModel(model);
     ui->tableViewDb->resizeColumnsToContents();
-    ui->tableViewDb->scrollToBottom();
     ui->tableViewDb->show();
+    ui->tableViewDb->scrollToBottom();
 }
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -42,7 +42,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->pushQuery->setEnabled(false);
     ui->pushOpen->setEnabled(false);
     loadPort();
-    connect(&_port,&SerialPort::showDataReceived,this,&MainWindow::showDataReceived);
+    // connect(&_port,&SerialPort::showDataReceived,this,&MainWindow::showDataReceived);
     connect(&_port,&SerialPort::handleMsgType1,this,&MainWindow::handleMsgType1);
     connect(&_port,&SerialPort::handleMsgType2,this,&MainWindow::handleMsgType2);
     connect(&_port,&SerialPort::updateState,Scada::getScada(),&Scada::insertConnectedStateToDB);
@@ -249,7 +249,7 @@ void MainWindow::handleMsgType1()
     s_ErrDisconnect = false;
     s_ErrStartup = false;
     /*Insert table error end*/
-    showTableLogRS232(ui);
+    // showTableLogRS232(ui);
 
 }
 
@@ -257,15 +257,16 @@ void MainWindow::handleMsgType2(NozzleMessage &data)
 {
     QDateTime currentTime;
     QSqlQuery query;
-    QString qryCmdErrLog = "insert into err_log values(";
-    QString qryCmdLogRS232 = "insert into LogRS232 values(";
+    QString qryCmdErrLog;
+    QString qryCmdLogRS232;
     msgCounter++;
     ui->msgCounter->display(QString::number(msgCounter));
     for(int i = 0 ; i < nozzleNum;i++){
         if(nozzlePtr[i].getId485() == data.Id485){
             /**/
             nozzlePtr[i].setStatus(data.Status);
-            qryCmdErrLog.append("'");
+            qryCmdErrLog.clear();
+            qryCmdErrLog.append("insert into err_log values('");
             qryCmdErrLog.append(nozzlePtr[i].getName());
             qryCmdErrLog.append("'");
             qryCmdErrLog.append(",");
@@ -306,7 +307,8 @@ void MainWindow::handleMsgType2(NozzleMessage &data)
             s_ErrDisconnect = false;
             s_ErrStartup = false;
             /*main table*/
-            qryCmdLogRS232.append("'");
+            qryCmdLogRS232.clear();
+            qryCmdLogRS232.append("insert into LogRS232 values('");
             qryCmdLogRS232.append(nozzlePtr[i].getName());
             qryCmdLogRS232.append("'");
             qryCmdLogRS232.append(",");
@@ -338,7 +340,7 @@ void MainWindow::handleMsgType2(NozzleMessage &data)
             qryCmdLogRS232.clear();
         }
     }
-    showTableLogRS232(ui);
+    // showTableLogRS232(ui);
 }
 
 void MainWindow::on_btnScada_clicked()

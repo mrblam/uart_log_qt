@@ -46,13 +46,14 @@ void SerialPort::receiveData(const QByteArray &new_data)
 }
 int8_t SerialPort::getRxDataPack()
 {
+    qDebug()<<"rxBuffer="+rxBuffer;
     if(rxBuffer.length()<=0) return (-1);
     int32_t start=rxBuffer.indexOf(STX);
     if(start < 0) return(-1);
     int32_t finish=rxBuffer.indexOf(ETX);
-    if(finish < 0) return(-1);
-    if((finish < start)){
-        rxBuffer.remove(0,start-1);
+    if((finish < start) || (finish < 0)){
+        qDebug()<< "remove:" +rxBuffer.left(start);
+        rxBuffer.remove(0,start);
         return (-1);
     }
     int8_t msg_type = finish-start;

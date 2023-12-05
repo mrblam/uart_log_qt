@@ -43,10 +43,10 @@ MainWindow::MainWindow(QWidget *parent)
     ui->pushOpen->setEnabled(false);
     loadPort();
     // connect(&_port,&SerialPort::showDataReceived,this,&MainWindow::showDataReceived);
-    connect(&_port,&SerialPort::handleMsgType1,this,&MainWindow::handleMsgType1);
-    connect(&_port,&SerialPort::handleMsgType2,this,&MainWindow::handleMsgType2);
-    connect(&_port,&SerialPort::updateState,Scada::getScada(),&Scada::insertConnectedStateToDB);
-    connect(&_port,&SerialPort::disconnectToMCU,Scada::getScada(),&Scada::setDisconnectToMCU);
+    connect(&portRS232,&SerialPort::handleMsgType1,this,&MainWindow::handleMsgType1);
+    connect(&portRS232,&SerialPort::handleMsgType2,this,&MainWindow::handleMsgType2);
+    connect(&portRS232,&SerialPort::updateState,Scada::getScada(),&Scada::insertConnectedStateToDB);
+    connect(&portRS232,&SerialPort::disconnectToMCU,Scada::getScada(),&Scada::setDisconnectToMCU);
     this->setWindowTitle("Peco Log");
     this->setWindowIcon(QIcon(":/UI/Icon/p.ico"));
     nozzleNum = 0;
@@ -140,7 +140,7 @@ void MainWindow::on_pushOpen_pressed()
     file.close();
     /**/
     if(portName != nullptr){
-        auto isConnected = _port.connectPort(portName,baud);
+        auto isConnected = portRS232.connectPort(portName,baud);
         if(!isConnected){
             QMessageBox::critical(this,"Error","Không thể mở cổng COM,kiểm tra lại cấu hình trong file config_port.txt");
         }else{
@@ -165,7 +165,7 @@ void MainWindow::handleMsgType1()
     QDateTime currentTime;
     QString qryCmdLogRS232 = "insert into LogRS232 values(";
     QSqlQuery query;
-    Nozzle *nozzleTarget = nozzlePtr->findNozzle(nozzlePtr,_port.nozzleMsg.Id485,_port.nozzleMsg.No,nozzleNum);
+    Nozzle *nozzleTarget = nozzlePtr->findNozzle(nozzlePtr,portRS232.nozzleMsg.Id485,portRS232.nozzleMsg.No,nozzleNum);
     if(nozzleTarget == nullptr){
         qDebug() << "Not found Nozzle";
         return;
@@ -173,33 +173,33 @@ void MainWindow::handleMsgType1()
     /*fill data vao cac doi tuong voi bom*/
     currentTime = QDateTime::currentDateTime();
     qDebug() << currentTime.toString("dd/MM/yyyy hh:mm:ss");
-    nozzleTarget->setStatus(_port.nozzleMsg.Status);
+    nozzleTarget->setStatus(portRS232.nozzleMsg.Status);
     nozzleTarget->setTime(currentTime.toString("dd/MM/yyyy hh:mm:ss"));
-    nozzleTarget->setLiter(_port.nozzleMsg.liter_finish.toLongLong());
-    nozzleTarget->setTotalMoney(_port.nozzleMsg.money_finish.toLongLong());
-    nozzleTarget->setUnitPrice(_port.nozzleMsg.unitPrice_finish.toLongLong());
+    nozzleTarget->setLiter(portRS232.nozzleMsg.liter_finish.toLongLong());
+    nozzleTarget->setTotalMoney(portRS232.nozzleMsg.money_finish.toLongLong());
+    nozzleTarget->setUnitPrice(portRS232.nozzleMsg.unitPrice_finish.toLongLong());
     /**/
     qryCmdLogRS232.append("'");
     qryCmdLogRS232.append(nozzleTarget->getName());
     qryCmdLogRS232.append("'");
     qryCmdLogRS232.append(",");
-    qryCmdLogRS232.append(QString::number(_port.nozzleMsg.Id485));
+    qryCmdLogRS232.append(QString::number(portRS232.nozzleMsg.Id485));
     qryCmdLogRS232.append(",");
-    qryCmdLogRS232.append(QString::number(_port.nozzleMsg.No));
+    qryCmdLogRS232.append(QString::number(portRS232.nozzleMsg.No));
     qryCmdLogRS232.append(",");
-    qryCmdLogRS232.append(QString::number(_port.nozzleMsg.Status));
+    qryCmdLogRS232.append(QString::number(portRS232.nozzleMsg.Status));
     qryCmdLogRS232.append(",");
-    qryCmdLogRS232.append(_port.nozzleMsg.liter_begin);
+    qryCmdLogRS232.append(portRS232.nozzleMsg.liter_begin);
     qryCmdLogRS232.append(",");
-    qryCmdLogRS232.append(_port.nozzleMsg.unitPrice_begin);
+    qryCmdLogRS232.append(portRS232.nozzleMsg.unitPrice_begin);
     qryCmdLogRS232.append(",");
-    qryCmdLogRS232.append(_port.nozzleMsg.money_begin);
+    qryCmdLogRS232.append(portRS232.nozzleMsg.money_begin);
     qryCmdLogRS232.append(",");
-    qryCmdLogRS232.append(_port.nozzleMsg.liter_finish);
+    qryCmdLogRS232.append(portRS232.nozzleMsg.liter_finish);
     qryCmdLogRS232.append(",");
-    qryCmdLogRS232.append(_port.nozzleMsg.unitPrice_finish);
+    qryCmdLogRS232.append(portRS232.nozzleMsg.unitPrice_finish);
     qryCmdLogRS232.append(",");
-    qryCmdLogRS232.append(_port.nozzleMsg.money_finish);
+    qryCmdLogRS232.append(portRS232.nozzleMsg.money_finish);
     qryCmdLogRS232.append(",");
     qryCmdLogRS232.append("'");
     qryCmdLogRS232.append(nozzleTarget->getTime());
@@ -216,7 +216,7 @@ void MainWindow::handleMsgType1()
     qry_cmd_table2.append(nozzleTarget->getName());
     qry_cmd_table2.append("'");
     qry_cmd_table2.append(",");
-    switch (_port.nozzleMsg.Status){
+    switch (portRS232.nozzleMsg.Status){
     case 0:
         break;
     case 1:
@@ -312,23 +312,23 @@ void MainWindow::handleMsgType2(NozzleMessage &data)
             qryCmdLogRS232.append(nozzlePtr[i].getName());
             qryCmdLogRS232.append("'");
             qryCmdLogRS232.append(",");
-            qryCmdLogRS232.append(QString::number(_port.nozzleMsg.Id485));
+            qryCmdLogRS232.append(QString::number(portRS232.nozzleMsg.Id485));
             qryCmdLogRS232.append(",");
-            qryCmdLogRS232.append(QString::number(_port.nozzleMsg.No));
+            qryCmdLogRS232.append(QString::number(portRS232.nozzleMsg.No));
             qryCmdLogRS232.append(",");
-            qryCmdLogRS232.append(QString::number(_port.nozzleMsg.Status));
+            qryCmdLogRS232.append(QString::number(portRS232.nozzleMsg.Status));
             qryCmdLogRS232.append(",");
-            qryCmdLogRS232.append(_port.nozzleMsg.liter_begin);
+            qryCmdLogRS232.append(portRS232.nozzleMsg.liter_begin);
             qryCmdLogRS232.append(",");
-            qryCmdLogRS232.append(_port.nozzleMsg.unitPrice_begin);
+            qryCmdLogRS232.append(portRS232.nozzleMsg.unitPrice_begin);
             qryCmdLogRS232.append(",");
-            qryCmdLogRS232.append(_port.nozzleMsg.money_begin);
+            qryCmdLogRS232.append(portRS232.nozzleMsg.money_begin);
             qryCmdLogRS232.append(",");
-            qryCmdLogRS232.append(_port.nozzleMsg.liter_finish);
+            qryCmdLogRS232.append(portRS232.nozzleMsg.liter_finish);
             qryCmdLogRS232.append(",");
-            qryCmdLogRS232.append(_port.nozzleMsg.unitPrice_finish);
+            qryCmdLogRS232.append(portRS232.nozzleMsg.unitPrice_finish);
             qryCmdLogRS232.append(",");
-            qryCmdLogRS232.append(_port.nozzleMsg.money_finish);
+            qryCmdLogRS232.append(portRS232.nozzleMsg.money_finish);
             qryCmdLogRS232.append(",");
             qryCmdLogRS232.append(":time)");
             query.prepare(qryCmdLogRS232);

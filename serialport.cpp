@@ -25,7 +25,7 @@ bool SerialPort::connectPort(QString portName,int baud)
     if(serialPort->open(QIODevice::ReadWrite)){
         connect(serialPort,&QSerialPort::readyRead,this,&SerialPort::dataReady);
         connect(&pollingDataReceived,&QTimer::timeout,this,&SerialPort::processReceivedData);
-        qDebug()<<"openning";
+        qDebug()<<"Openning";
         pollingDataReceived.start(POLLING_RXBUFFER_mS);
     }
     return serialPort->isOpen();
@@ -57,10 +57,20 @@ int8_t SerialPort::getRxDataPack()
         return (-1);
     }
     int8_t msg_type = finish-start;
-    packReady=rxBuffer.mid(start+1,finish-start-1);
-    qDebug()<< "packready --> " + packReady.toHex();
-    packReady = convertDataReceived(packReady,finish-start-1);
-    qDebug()<< "packconvert --> " + packReady.toHex();
+    if(msg_type > 3){
+        packReady=rxBuffer.mid(start+1,finish-start-1);
+        qDebug()<< "packFound --> " + packReady.toHex();
+        uint8_t checksum1 = checksumXOR((uint8_t *)&rxBuffer[start],0,msg_type-1)|0x80;
+        uint8_t checksum2 = rxBuffer.at(finish-1);
+        checksum1 ^= checksum2;
+        if(checksum1){
+            qDebug() << "Checksum Error";
+            rxBuffer.remove(start,finish - start + 1);
+            return(-1);
+        }
+        packReady = convertDataReceived(packReady,finish-start-1);
+        qDebug()<< "packConvert --> " + packReady.toHex();
+    }
     rxBuffer.remove(start,finish - start + 1);
     return msg_type;
 }
@@ -95,8 +105,8 @@ void SerialPort::processReceivedData()
         emit updateState(nozzleMsg);
     }
     switch (pack_found) {
-    case 4:
-        nozzleMsg.Id485                = packReady[0];
+    case MSG_TYPE_2:
+        nozzleMsg.Id485             = packReady[0];
         nozzleMsg.No                = 0xFF;
         nozzleMsg.Status            = packReady[1];
         nozzleMsg.liter_now         = "0x00";
@@ -113,8 +123,8 @@ void SerialPort::processReceivedData()
         nozzleMsg.money_idle        = "0x00";
         emit handleMsgType2(nozzleMsg);//mainWindow
         break;
-    case 93:
-        nozzleMsg.Id485                = packReady[0];
+    case MSG_TYPE_1:
+        nozzleMsg.Id485             = packReady[0];
         nozzleMsg.No                = packReady[1];
         nozzleMsg.Status            = packReady[2];
         nozzleMsg.liter_begin       = packReady.mid(3,8);
@@ -137,7 +147,7 @@ void SerialPort::processReceivedData()
 }
 uint8_t checksumXOR(uint8_t *pu8Buffer, uint32_t u32Offset, uint32_t u32Length){
     uint8_t bCRC = 0x00;
-    for (u32Offset = 0; u32Offset <= u32Length; u32Offset++) {
+    for (u32Offset = 0; u32Offset < u32Length; u32Offset++) {
         bCRC ^= pu8Buffer[u32Offset];
     }
     return bCRC;

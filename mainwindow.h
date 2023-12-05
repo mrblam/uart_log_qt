@@ -44,7 +44,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    SerialPort _port;
+    SerialPort portRS232;
     bool loadPort();
     Nozzle *nozzlePtr;
 //    LogRecord record;

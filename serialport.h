@@ -10,6 +10,9 @@
 #define ETX                         0x03
 #define POLLING_RXBUFFER_mS         200
 #define TIMEOUT_TO_RECEIVE_DATA     30//30*200ms = 3s
+#define MSG_TYPE_1                  93
+#define MSG_TYPE_2                  4
+
 typedef enum COM_STATE{
     COM_STATE_IDLE = 0,
     COM_STATE_RECEIVE_DATA_LEN = 1,

@@ -92,7 +92,7 @@ void Scada::insertConnectedStateToDB()
     ui->statusConnect->setText("Connected");
     ui->statusConnect->setStyleSheet("font-weight: bold; color: blue;");
     currentTime = QDateTime::currentDateTime();
-    query.prepare("insert into Log_State values (:time,'MCU Connected')");
+    query.prepare("insert into Log_State values (:time,'Target board connected')");
     query.bindValue(":time", currentTime.toString("dd/MM/yyyy hh:mm:ss"));
     if (!query.exec()) {
         qDebug() << "Insert disconnect into Log_State failed";
@@ -103,10 +103,10 @@ void Scada::setDisconnectToMCU()
 {
     QSqlQuery query;
     QDateTime currentTime;
-    ui->statusConnect->setText("Disconnect from MCU (Timeout)");
+    ui->statusConnect->setText("Disconnect from target board (Timeout)");
     ui->statusConnect->setStyleSheet("font-weight: bold; color: red;");
     currentTime = QDateTime::currentDateTime();
-    query.prepare("insert into Log_State values (:time,'MCU Timeout')");
+    query.prepare("insert into Log_State values (:time,'Target board Timeout')");
     query.bindValue(":time", currentTime.toString("dd/MM/yyyy hh:mm:ss"));
     if (!query.exec()) {
         qDebug() << "Insert disconnect into Log_State failed";

@@ -43,6 +43,11 @@ void SerialPort485::processReceivedData()
         msg485.UA = packReady[2];
         msg485.opcode = packReady.mid(3,2);
         msg485.state = packReady[5];
+        msg485.liter = "0x00";
+        msg485.unitPriceState = 0xff;
+        msg485.unitPrice = "0x00";
+        msg485.totalMoney = "0x00";
+        msg485.no = 0xff;
         emit handleMsg485(msg485);
         qDebug()<< "SA:" <<msg485.SA <<"UA:"<<msg485.UA <<"opcode:"<<msg485.opcode <<"state:"<<msg485.state;
         break;
@@ -56,6 +61,7 @@ void SerialPort485::processReceivedData()
         msg485.unitPrice =packReady.mid(13,4);
         msg485.totalMoney = packReady.mid(17,6);
         msg485.no = packReady[23];
+        emit handleMsg485(msg485);
         qDebug()<< "SA:" <<msg485.SA <<"UA:"<<msg485.UA <<"opcode:"<<msg485.opcode <<"state:"<<msg485.state <<"liter:"<<msg485.liter <<"unitPriceState:"<<msg485.unitPriceState<<"unitPrice:"<<msg485.unitPrice <<"totalMoney:"<<msg485.totalMoney <<"no:"<<msg485.no;
         break;
     case 34:
@@ -68,6 +74,7 @@ void SerialPort485::processReceivedData()
         msg485.unitPrice =packReady.mid(15,6);
         msg485.totalMoney = packReady.mid(21,8);
         msg485.no = packReady[29];
+        emit handleMsg485(msg485);
         qDebug()<< "SA:" <<msg485.SA <<"UA:"<<msg485.UA <<"opcode:"<<msg485.opcode <<"state:"<<msg485.state <<"liter:"<<msg485.liter <<"unitPriceState:"<<msg485.unitPriceState<<"unitPrice:"<<msg485.unitPrice <<"totalMoney:"<<msg485.totalMoney <<"no:"<<msg485.no;
         break;
     default:

@@ -79,6 +79,7 @@ MainWindow::MainWindow(QWidget *parent)
             query.exec("create table err_log (Vòi TEXT,MissLog TEXT,Disconnect TEXT,Startup TEXT,Time DATETIME)");
             query.exec("create table Nozzle_Assign (Vòi TEXT,ID485 INT,No INT)");
             query.exec("create table Log_State (Time DATETIME,State TEXT)");
+            query.exec("create table com1_log (Time DATETIME,SA TEXT,UA TEXT,Opcode TEXT,State TEXT,Lít TEXT,[Đơn giá hợp lệ] TEXT,[Đơn giá] TEXT,[Thành tiền] TEXT,No TEXT)");
             currentTime = QDateTime::currentDateTime();
             query.prepare("insert into Log_State values (:time,'Khởi động')");
             query.bindValue(":time", currentTime.toString("dd/MM/yyyy hh:mm:ss"));
@@ -497,6 +498,34 @@ void MainWindow::on_pushReloadAssignNozz_clicked()
 
 void MainWindow::handleMsg485(Msg485 &data)
 {
-
+    QDateTime currentTime;
+    QSqlQuery query;
+    QString qryCmdErrLog;
+    currentTime = QDateTime::currentDateTime();
+    qryCmdErrLog.clear();
+    qryCmdErrLog.append("insert into com1_log values(:time,");
+    qryCmdErrLog.append(QString::number(data.SA,16));
+    qryCmdErrLog.append(",");
+    qryCmdErrLog.append(QString::number(data.UA,16));
+    qryCmdErrLog.append(",");
+    qryCmdErrLog.append(data.opcode.toHex());
+    qryCmdErrLog.append(",");
+    qryCmdErrLog.append(QString::number(data.state,16));
+    qryCmdErrLog.append(",");
+    qryCmdErrLog.append(data.liter);
+    qryCmdErrLog.append(",");
+    qryCmdErrLog.append(QString::number(data.unitPriceState));
+    qryCmdErrLog.append(",");
+    qryCmdErrLog.append(data.unitPrice);
+    qryCmdErrLog.append(",");
+    qryCmdErrLog.append(data.totalMoney);
+    qryCmdErrLog.append(",");
+    qryCmdErrLog.append(QString::number(data.no));
+    qryCmdErrLog.append(")");
+    query.prepare(qryCmdErrLog);
+    query.bindValue(":time", currentTime.toString("dd/MM/yyyy hh:mm:ss"));
+    if (!query.exec()) {
+        qDebug() << "Insert Err_log failed:" << query.lastError();
+    }
 }
-
+//(Time DATETIME,SA TEXT,UA TEXT,Opcode TEXT,State TEXT,Lít TEXT,[Đơn giá hợp lệ] TEXT,[Đơn giá] TEXT,[Thành tiền] TEXT,No TEXT)");

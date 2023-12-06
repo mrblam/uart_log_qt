@@ -50,4 +50,17 @@ typedef struct NozzleMessage{
     QByteArray unitPrice_idle;
     QByteArray money_idle;
 }NozzleMessage;
+typedef struct Msg485{
+    uint8_t STX;
+    uint8_t SA;
+    uint8_t UA;
+    QByteArray opcode;
+    uint8_t state;
+    QByteArray liter;
+    uint8_t unitPriceState;
+    QByteArray unitPrice;
+    QByteArray totalMoney;
+    uint8_t no;
+
+}Msg485;
 #endif // NOZZLEHELPER_H

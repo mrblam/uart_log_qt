@@ -45,6 +45,7 @@ MainWindow::MainWindow(QWidget *parent)
     // connect(&_port,&SerialPort::showDataReceived,this,&MainWindow::showDataReceived);
     connect(&portRS232,&SerialPort::handleMsgType1,this,&MainWindow::handleMsgType1);
     connect(&portRS232,&SerialPort::handleMsgType2,this,&MainWindow::handleMsgType2);
+    connect(&port485,&SerialPort485::handleMsg485,this,&MainWindow::handleMsg485);
     connect(&portRS232,&SerialPort::updateState,Scada::getScada(),&Scada::insertConnectedStateToDB);
     connect(&portRS232,&SerialPort::disconnectToMCU,Scada::getScada(),&Scada::setDisconnectToMCU);
     this->setWindowTitle("Peco Log");
@@ -156,6 +157,10 @@ void MainWindow::on_pushOpen_pressed()
             showTableLogRS232(ui);
             //        delete(model);
         }
+    }
+    auto isConnect =  port485.connectPort("COM1",19200);
+    if(!isConnect){
+        qDebug()<< "error com1";
     }
 }
 void MainWindow::handleMsgType1()
@@ -488,5 +493,10 @@ void MainWindow::on_pushReloadAssignNozz_clicked()
     ui->assignResult->show();
     ui->assignFinish->setEnabled(true);
     ui->assignNozzle->setEnabled(true);
+}
+
+void MainWindow::handleMsg485(Msg485 &data)
+{
+
 }
 

@@ -8,6 +8,8 @@
 #include "serialport.h"
 #include "nozzle.h"
 #include <QSqlTableModel>
+#include "receiverthread.h"
+#include "serialport485.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -23,6 +25,7 @@ public:
     void closeEvent (QCloseEvent *event);
     uint8_t nozzleNum;
     Nozzle nozzleArr[32];
+        ReceiverThread m_thread;
 private slots:
     void on_pushOpen_pressed();
 
@@ -42,11 +45,15 @@ private slots:
 
     void on_pushReloadAssignNozz_clicked();
 
+    void handleMsg485(Msg485 &data);
+
 private:
     Ui::MainWindow *ui;
     SerialPort portRS232;
+    SerialPort485 port485;
     bool loadPort();
     Nozzle *nozzlePtr;
+
 //    LogRecord record;
 signals:
     void prepareData();

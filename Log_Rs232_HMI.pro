@@ -15,8 +15,10 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     nozzle.cpp \
+    receiverthread.cpp \
     scada.cpp \
-    serialport.cpp
+    serialport.cpp \
+    serialport485.cpp
 
 HEADERS += \
     filter.h \
@@ -25,8 +27,10 @@ HEADERS += \
     mainwindow.h \
     nozzle.h \
     nozzlehelper.h \
+    receiverthread.h \
     scada.h \
-    serialport.h
+    serialport.h \
+    serialport485.h
 
 FORMS += \
     filter.ui \

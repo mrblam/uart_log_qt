@@ -15,7 +15,6 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     nozzle.cpp \
-    receiverthread.cpp \
     scada.cpp \
     serialport.cpp \
     serialport485.cpp
@@ -27,7 +26,6 @@ HEADERS += \
     mainwindow.h \
     nozzle.h \
     nozzlehelper.h \
-    receiverthread.h \
     scada.h \
     serialport.h \
     serialport485.h

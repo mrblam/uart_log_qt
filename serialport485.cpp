@@ -23,7 +23,7 @@ bool SerialPort485::connectPort(QString portName, int baud)
     if(serialPort->open(QIODevice::ReadWrite)){
         connect(serialPort,&QSerialPort::readyRead,this,&SerialPort485::dataReady);
         connect(&pollingDataReceived,&QTimer::timeout,this,&SerialPort485::processReceivedData);
-        qDebug()<<"Openning";
+        qDebug()<<"[COM1]Openning";
         pollingDataReceived.start(50);
     }
     return serialPort->isOpen();
@@ -65,6 +65,7 @@ void SerialPort485::processReceivedData()
         qDebug()<< "SA:" <<msg485.SA <<"UA:"<<msg485.UA <<"opcode:"<<msg485.opcode <<"state:"<<msg485.state <<"liter:"<<msg485.liter <<"unitPriceState:"<<msg485.unitPriceState<<"unitPrice:"<<msg485.unitPrice <<"totalMoney:"<<msg485.totalMoney <<"no:"<<msg485.no;
         break;
     case 34:
+    case 41:
         msg485.SA = packReady[1];
         msg485.UA = packReady[2];
         msg485.opcode = packReady.mid(3,2);
@@ -89,25 +90,31 @@ void SerialPort485::receiveData(const QByteArray &new_data)
 
 int8_t SerialPort485::getRxDataPack()
 {
-    qDebug()<<"rxBuffer485 ="+rxBuffer;
+    qDebug()<<"[com1]rxBuffer485 ="+rxBuffer;
     if(rxBuffer.length()<=0) return (-1);
     int32_t start=rxBuffer.indexOf(STX);
-    if(start < 0) return(-1);
+    if(start < 0){
+        qDebug()<< "[com1]clear rxBufer485: Not found STX";
+        rxBuffer.clear();
+        return(-1);
+    }
     int32_t finish=rxBuffer.indexOf(ETX);
     if((finish < start) || (finish < 0)){
-        qDebug()<< "remove:" +rxBuffer.left(start);
+        qDebug()<< "[com1]remove:" +rxBuffer.left(start);
         rxBuffer.remove(0,start);
         return (-1);
     }
     int8_t msg_type = finish-start+2;
     if(msg_type >= 9){
         packReady=rxBuffer.mid(start,finish-start+2);
-        if(packReady.lastIndexOf(STX)){
-            int8_t lastStart = packReady.lastIndexOf(STX);
-            packReady=rxBuffer.mid(lastStart,finish-lastStart+2);
-            msg_type = finish-lastStart+2;
+        qDebug()<< "[com1]packFound --> " + packReady.toHex();
+        int8_t packReadyETX = packReady.indexOf(ETX);
+        int8_t lastStart = packReady.lastIndexOf(STX,packReadyETX);//duplicate 0x02 in packready,except 0x03 0x02
+        if(lastStart){
+            packReady=packReady.mid(lastStart,packReadyETX-lastStart+2);
+            msg_type = packReadyETX-lastStart+2;
         }
-        qDebug()<< "packFound --> " + packReady.toHex();
+        qDebug()<< "[com1]packFound --> " + packReady.toHex();
     }
     rxBuffer.remove(start,finish - start + 2);
     return msg_type;

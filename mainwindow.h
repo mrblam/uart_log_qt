@@ -8,7 +8,6 @@
 #include "serialport.h"
 #include "nozzle.h"
 #include <QSqlTableModel>
-#include "receiverthread.h"
 #include "serialport485.h"
 
 QT_BEGIN_NAMESPACE
@@ -25,7 +24,6 @@ public:
     void closeEvent (QCloseEvent *event);
     uint8_t nozzleNum;
     Nozzle nozzleArr[32];
-        ReceiverThread m_thread;
 private slots:
     void on_pushOpen_pressed();
 

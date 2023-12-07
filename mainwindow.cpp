@@ -503,29 +503,29 @@ void MainWindow::handleMsg485(Msg485 &data)
     QString qryCmdErrLog;
     currentTime = QDateTime::currentDateTime();
     qryCmdErrLog.clear();
-    qryCmdErrLog.append("insert into com1_log values(:time,");
+    qryCmdErrLog.append("insert into com1_log values(:time,'");
     qryCmdErrLog.append(QString::number(data.SA,16));
-    qryCmdErrLog.append(",");
+    qryCmdErrLog.append("','");
     qryCmdErrLog.append(QString::number(data.UA,16));
-    qryCmdErrLog.append(",");
+    qryCmdErrLog.append("',");
     qryCmdErrLog.append(data.opcode.toHex());
-    qryCmdErrLog.append(",");
+    qryCmdErrLog.append(",'");
     qryCmdErrLog.append(QString::number(data.state,16));
-    qryCmdErrLog.append(",");
+    qryCmdErrLog.append("',");
     qryCmdErrLog.append(data.liter);
-    qryCmdErrLog.append(",");
-    qryCmdErrLog.append(QString::number(data.unitPriceState));
-    qryCmdErrLog.append(",");
+    qryCmdErrLog.append(",'");
+    qryCmdErrLog.append(QString::number(data.unitPriceState,16));
+    qryCmdErrLog.append("',");
     qryCmdErrLog.append(data.unitPrice);
     qryCmdErrLog.append(",");
     qryCmdErrLog.append(data.totalMoney);
-    qryCmdErrLog.append(",");
-    qryCmdErrLog.append(QString::number(data.no));
-    qryCmdErrLog.append(")");
+    qryCmdErrLog.append(",'");
+    qryCmdErrLog.append(QString::number(data.no,16));
+    qryCmdErrLog.append("')");
     query.prepare(qryCmdErrLog);
     query.bindValue(":time", currentTime.toString("dd/MM/yyyy hh:mm:ss"));
     if (!query.exec()) {
-        qDebug() << "Insert Err_log failed:" << query.lastError();
+        qDebug() << "Insert com1_log failed:" << query.lastError();
     }
 }
 //(Time DATETIME,SA TEXT,UA TEXT,Opcode TEXT,State TEXT,Lít TEXT,[Đơn giá hợp lệ] TEXT,[Đơn giá] TEXT,[Thành tiền] TEXT,No TEXT)");
